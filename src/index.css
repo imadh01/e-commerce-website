@@ -1,0 +1,34 @@
+/* Minimal global reset — intentionally small.
+   Anything page-specific or component-specific belongs in that
+   component's own .css file, not here, to avoid class-name
+   collisions across pages. */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}

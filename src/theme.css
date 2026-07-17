@@ -1,0 +1,14 @@
+/* Design tokens shared across the whole app.
+   Every component's CSS references these variables instead of
+   hardcoding colors, so the palette only needs to change in one place. */
+
+:root {
+  --brand-blue: #042954;
+  --brand-orange: #f06e25;
+  --white: #ffffff;
+  --bg-gray: #f9f9f9;
+  --text-muted: #6b7684;
+  --border-soft: #e7e9ec;
+  --error-red: #d1453b;
+  --font-main: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
