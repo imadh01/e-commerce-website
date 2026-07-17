@@ -1,0 +1,263 @@
+/* ===== SITE HEADER STYLES ===== */
+/* Palette variables come from theme.css, loaded globally */
+
+.site-header {
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(4, 41, 84, 0.06);
+}
+
+.header-top {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.header-top-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+/* ===== LOGO ===== */
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo-img {
+  height: 60px;
+  width: auto;
+  display: block;
+}
+
+/* ===== SEARCH BAR ===== */
+.search-bar {
+  flex: 1;
+  display: flex;
+  max-width: 640px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--white);
+  transition: border-color 0.2s ease;
+}
+
+.search-bar:focus-within {
+  border-color: var(--brand-orange);
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  outline: none;
+  color: var(--brand-blue);
+  min-width: 0;
+}
+
+.search-bar button {
+  background: var(--brand-orange);
+  border: none;
+  padding: 0 20px;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.search-bar button:hover {
+  background: #d85f1c;
+}
+
+/* ===== ACTIONS (cart / sign in) ===== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.cart-btn,
+.signin-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--brand-blue);
+  font-weight: 600;
+  font-size: 0.92rem;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.cart-btn:hover,
+.signin-btn:hover {
+  background: var(--bg-gray);
+}
+
+.cart-count {
+  position: absolute;
+  top: 2px;
+  left: 22px;
+  background: var(--brand-orange);
+  color: var(--white);
+  font-size: 0.65rem;
+  font-weight: 800;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-label {
+  white-space: nowrap;
+}
+
+/* ===== MOBILE TOGGLE ===== */
+.mobile-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 8px;
+  flex-shrink: 0;
+}
+
+.mobile-toggle span {
+  width: 24px;
+  height: 2.5px;
+  background: var(--brand-blue);
+  border-radius: 2px;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.mobile-toggle.open span:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.mobile-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-toggle.open span:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* ===== MAIN NAV ===== */
+.main-nav-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  gap: 32px;
+}
+
+.nav-link {
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--brand-blue);
+  opacity: 0.8;
+  padding: 14px 2px;
+  border-bottom: 2px solid transparent;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active-page {
+  opacity: 1;
+  border-bottom-color: var(--brand-orange);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .header-top-inner {
+    flex-wrap: wrap;
+    padding: 14px 20px;
+  }
+
+  .search-bar {
+    order: 3;
+    max-width: 100%;
+    flex-basis: 100%;
+  }
+
+  .action-label {
+    display: none;
+  }
+
+  .cart-btn,
+  .signin-btn {
+    padding: 10px;
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+
+  .main-nav {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .main-nav.open {
+    max-height: 400px;
+  }
+
+  .main-nav-inner {
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 20px 16px;
+  }
+
+  .nav-link {
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border-soft);
+    border-left: 3px solid transparent;
+  }
+
+  .nav-link:hover,
+  .nav-link.active-page {
+    border-bottom-color: var(--border-soft);
+    border-left-color: var(--brand-orange);
+    background: var(--bg-gray);
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-img {
+    height: 46px;
+  }
+
+  .header-top-inner {
+    gap: 14px;
+    padding: 12px 16px;
+  }
+
+  .search-bar input {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  .search-bar button {
+    padding: 0 14px;
+  }
+}
