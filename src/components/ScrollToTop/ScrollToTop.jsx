@@ -6,9 +6,15 @@ import { useLocation } from "react-router-dom";
 // where a full page load naturally resets it). This component fixes
 // that: it watches the current URL, and scrolls to top every time
 // it changes.
-//
-// Renders nothing — this is a "logic-only" component, mounted once
-// near the top of the app.
+
+// It also disables the browser's built-in scroll restoration on
+// refresh — by default some browsers try to restore your previous
+// scroll position after a hard refresh, which we're deliberately
+// overriding so every fresh load always starts at the top.
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 export default function ScrollToTop() {
   const { pathname } = useLocation();
 
