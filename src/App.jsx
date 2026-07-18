@@ -8,6 +8,7 @@ import FAQ from "./pages/FAQ/FAQ";
 import Contact from "./pages/Contact/Contact";
 import Privacy from "./pages/Privacy/Privacy";
 import Terms from "./pages/Terms/Terms";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 
 // Route map — every page lives inside <Layout /> so Header/Footer render
 // once and only the matched page's content swaps out underneath them.
@@ -16,6 +17,7 @@ export default function App() {
     <ErrorBoundary>
       <CartProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
