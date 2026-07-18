@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "./Terms.css";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export default function Terms() {
+  usePageTitle("Terms & Conditions");
   const containerRef = useRef(null);
 
   useEffect(() => {

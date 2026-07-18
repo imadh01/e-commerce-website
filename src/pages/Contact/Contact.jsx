@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Contact.css";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 // Each field's validation rule lives here, keyed by field name — one
 // place to look if you ever need to change what "valid" means for a
@@ -31,6 +32,7 @@ const initialFormState = {
 };
 
 export default function Contact() {
+  usePageTitle("Contact Us");
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});

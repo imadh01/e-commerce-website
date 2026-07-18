@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./FAQ.css";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 // The questions live as data, not hardcoded JSX. Adding a 5th question
 // later means adding one object here — no markup duplication needed.
@@ -33,6 +34,7 @@ export default function FAQ() {
   // open items) naturally gives us the "only one open at a time"
   // accordion behavior — opening a new one automatically closes
   // whatever was open before, just by replacing this one value.
+  usePageTitle("FAQ");
   const [openIndex, setOpenIndex] = useState(null);
 
   function toggleQuestion(index) {

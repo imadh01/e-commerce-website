@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import "./Header.css";
 
@@ -21,6 +21,8 @@ export default function Header() {
   // point: whatever the Home page's "Add to Cart" button does, this
   // number updates automatically, with no manual wiring needed.
   const { cartCount } = useCart();
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   function toggleMobileMenu() {
     setIsMobileMenuOpen((prev) => !prev);
@@ -38,26 +40,28 @@ export default function Header() {
             />
           </Link>
 
-          <div className="search-bar">
-            <input type="text" placeholder="What are you looking..." />
-            <button type="button" aria-label="Search">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="7"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M21 21L16.65 16.65"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-          </div>
+          {isHomePage && (
+            <div className="search-bar">
+              <input type="text" placeholder="What are you looking..." />
+              <button type="button" aria-label="Search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle
+                    cx="11"
+                    cy="11"
+                    r="7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M21 21L16.65 16.65"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
 
           <div className="header-actions">
             <button type="button" className="cart-btn" aria-label="Cart">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "./Privacy.css";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 // Section data — id is used both for the sidebar link and to find the
 // matching <section> in the DOM for scroll-spy tracking.
@@ -14,6 +15,7 @@ const sections = [
 ];
 
 export default function Privacy() {
+  usePageTitle("Privacy Policy");
   const [activeSection, setActiveSection] = useState(sections[0].id);
 
   // One ref per section element, stored in a plain object keyed by id,

@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
 import "./About.css";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export default function About() {
   // A ref to the page's outer container, so we can search *within* this
   // page only for elements to animate — not query the whole document.
+  //   throw new Error("Test crash");
+  usePageTitle("About Us");
   const containerRef = useRef(null);
 
   useEffect(() => {
