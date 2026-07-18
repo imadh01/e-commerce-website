@@ -70,6 +70,8 @@ export default function Footer() {
                 href="https://play.google.com/store/apps/details?id=com.mamluk.app"
                 className="store-badge"
                 aria-label="Get it on Google Play"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path

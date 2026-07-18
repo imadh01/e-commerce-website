@@ -1,0 +1,246 @@
+.privacy-page {
+  background: var(--white);
+}
+
+/* ===== HERO BANNER ===== */
+.privacy-hero {
+  position: relative;
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-image: url("https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.75) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 24px;
+}
+
+.privacy-hero h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  color: var(--brand-orange);
+}
+
+.crumb-sep {
+  color: var(--text-muted);
+}
+
+.crumb-current {
+  color: var(--brand-orange);
+  font-weight: 700;
+}
+
+/* ===== PRIVACY LAYOUT ===== */
+.privacy-layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+/* ===== SIDEBAR NAV ===== */
+.privacy-nav {
+  position: sticky;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.privacy-nav-link {
+  padding: 12px 18px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-left: 3px solid transparent;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.privacy-nav-link:hover {
+  color: var(--brand-blue);
+  background: var(--bg-gray);
+}
+
+.privacy-nav-link.active {
+  color: var(--brand-blue);
+  border-left-color: var(--brand-orange);
+  font-weight: 700;
+  background: #fdf0e7;
+}
+
+/* ===== PRIVACY CONTENT ===== */
+.privacy-content section {
+  margin-bottom: 48px;
+  scroll-margin-top: 40px;
+}
+
+.privacy-content section:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-content h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 18px;
+}
+
+.privacy-content p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.85;
+  margin-bottom: 18px;
+}
+
+.privacy-content p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-content p strong {
+  color: var(--brand-blue);
+  font-weight: 700;
+}
+
+.privacy-content ol {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.85;
+  padding-left: 22px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inline-link {
+  color: var(--brand-orange);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inline-link:hover {
+  color: #d85f1c;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .privacy-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .privacy-nav {
+    position: static;
+    order: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .privacy-nav-link {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 8px 14px;
+    background: var(--bg-gray);
+    border-radius: 30px;
+    font-size: 0.85rem;
+    width: auto;
+  }
+
+  .privacy-nav-link.active {
+    border-bottom-color: var(--brand-orange);
+    background: #fdf0e7;
+  }
+
+  .privacy-content {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .privacy-hero {
+    min-height: 260px;
+  }
+  .privacy-hero h1 {
+    font-size: 2rem;
+  }
+  .privacy-layout {
+    padding: 40px 20px 50px;
+  }
+  .privacy-content h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .privacy-hero {
+    min-height: 220px;
+  }
+  .privacy-hero h1 {
+    font-size: 1.6rem;
+  }
+  .breadcrumb {
+    font-size: 0.85rem;
+  }
+  .privacy-content h2 {
+    font-size: 1.15rem;
+  }
+  .privacy-content p,
+  .privacy-content ol {
+    font-size: 0.93rem;
+  }
+}
