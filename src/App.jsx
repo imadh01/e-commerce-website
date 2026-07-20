@@ -11,6 +11,8 @@ import Terms from "./pages/Terms/Terms";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import Cart from "./pages/Cart/Cart";
 import { CatalogProvider } from "./context/CatalogContext";
+import Checkout from "./pages/Checkout/Checkout";
+import OrderSuccess from "./pages/OrderSuccess/OrderSuccess";
 
 // Route map — every page lives inside <Layout /> so Header/Footer render
 // once and only the matched page's content swaps out underneath them.
@@ -30,6 +32,11 @@ export default function App() {
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route
+                  path="/order-success/:orderId"
+                  element={<OrderSuccess />}
+                />
               </Route>
             </Routes>
           </BrowserRouter>
