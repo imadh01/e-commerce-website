@@ -1,14 +1,24 @@
-import { Container, Row, Col, Card, Button, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { getDiscountPercent } from "../../utils/pricing";
 import "./Cart.css";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Alert,
+  Modal,
+} from "react-bootstrap";
+import { useState } from "react";
 
 export default function Cart() {
   usePageTitle("Cart");
   const navigate = useNavigate();
   const { cartItems, setQuantity, removeFromCart, clearCart } = useCart();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const entries = Object.entries(cartItems); // [ [id, {quantity, name, ...}], ... ]
 
@@ -53,15 +63,45 @@ export default function Cart() {
         <Button
           variant="outline-danger"
           size="sm"
-          onClick={() => {
-            if (window.confirm("Remove all items from your cart?")) {
-              clearCart();
-            }
-          }}
+          onClick={() => setShowClearConfirm(true)}
         >
           Clear Cart
         </Button>
       </div>
+      <Modal
+        show={showClearConfirm}
+        onHide={() => setShowClearConfirm(false)}
+        centered
+        size="sm"
+      >
+        <Modal.Body className="text-center py-4">
+          <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>🗑️</div>
+          <h5 className="fw-bold mb-2" style={{ color: "var(--brand-blue)" }}>
+            Clear your cart?
+          </h5>
+          <p className="text-muted small mb-4">
+            This will remove all {entries.length} item
+            {entries.length > 1 ? "s" : ""} from your cart.
+          </p>
+          <div className="d-flex gap-2 justify-content-center">
+            <Button
+              variant="outline-secondary"
+              onClick={() => setShowClearConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                clearCart();
+                setShowClearConfirm(false);
+              }}
+            >
+              Yes, Clear Cart
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
 
       <Row className="g-4">
         {/* ===== ITEMS LIST ===== */}

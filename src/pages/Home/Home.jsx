@@ -20,16 +20,23 @@ import "./Home.css";
 import { Toast, ToastContainer } from "react-bootstrap";
 import QuickViewModal from "../../components/QuickViewModal/QuickViewModal";
 import { getDiscountPercent } from "../../utils/pricing";
+import { useCatalog } from "../../context/CatalogContext";
 
 export default function Home() {
   usePageTitle("Home");
-  const { addToCart } = useCart();
-
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [items, setItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { addToCart, cartItems, setQuantity } = useCart();
+  const {
+    categories,
+    subcategories,
+    products: items,
+    isLoading,
+    error,
+  } = useCatalog();
+  //   const [categories, setCategories] = useState([]);
+  //   const [subcategories, setSubcategories] = useState([]);
+  //   const [items, setItems] = useState([]);
+  //   const [isLoading, setIsLoading] = useState(true);
+  //   const [error, setError] = useState(null);
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSubcategory, setActiveSubcategory] = useState(null);
@@ -41,37 +48,37 @@ export default function Home() {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
 
-  useEffect(() => {
-    let isCancelled = false;
+  //   useEffect(() => {
+  //     let isCancelled = false;
 
-    async function loadCatalog() {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await fetchCatalog();
+  //     async function loadCatalog() {
+  //       try {
+  //         setIsLoading(true);
+  //         setError(null);
+  //         const data = await fetchCatalog();
 
-        if (!isCancelled) {
-          setCategories(data.categories || []);
-          setSubcategories(data.subcategories || []);
-          setItems(data.products || []);
-        }
-      } catch (err) {
-        if (!isCancelled) {
-          setError("Failed to load products. Please try again later.");
-          console.error("Catalog fetch error:", err);
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
+  //         if (!isCancelled) {
+  //           setCategories(data.categories || []);
+  //           setSubcategories(data.subcategories || []);
+  //           setItems(data.products || []);
+  //         }
+  //       } catch (err) {
+  //         if (!isCancelled) {
+  //           setError("Failed to load products. Please try again later.");
+  //           console.error("Catalog fetch error:", err);
+  //         }
+  //       } finally {
+  //         if (!isCancelled) {
+  //           setIsLoading(false);
+  //         }
+  //       }
+  //     }
 
-    loadCatalog();
-    return () => {
-      isCancelled = true;
-    };
-  }, []);
+  //     loadCatalog();
+  //     return () => {
+  //       isCancelled = true;
+  //     };
+  //   }, []);
 
   // Deduplicate + price filter
   const uniqueItems = items.reduce((acc, item) => {
@@ -190,7 +197,10 @@ export default function Home() {
           : `Cart updated for ${product.name}`,
     });
   }
-
+  function handleCardAddToCart(item) {
+    addToCart(item);
+    setToast({ show: true, message: `${item.name} added to cart` });
+  }
   // Resolve category name for the modal — the product only has category_id.
   const quickViewCategoryName = quickViewProduct
     ? categories.find((c) => c.id === quickViewProduct.category_id)?.name
@@ -418,14 +428,41 @@ export default function Home() {
                           <Card.Text className="text-muted small mb-3">
                             {item.code}
                           </Card.Text>
-                          <Button
-                            variant="dark"
-                            size="sm"
-                            className="mt-auto add-to-cart-btn"
-                            onClick={() => addToCart(item)}
-                          >
-                            Add to Cart
-                          </Button>
+
+                          {/* Cart-aware button: shows Add or +/- controls */}
+                          {cartItems[item.id]?.quantity > 0 ? (
+                            <div className="product-qty-control mt-auto">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setQuantity(
+                                    item.id,
+                                    cartItems[item.id].quantity - 1,
+                                  )
+                                }
+                                aria-label="Decrease quantity"
+                              >
+                                −
+                              </button>
+                              <span>{cartItems[item.id].quantity}</span>
+                              <button
+                                type="button"
+                                onClick={() => addToCart(item, 1)}
+                                aria-label="Increase quantity"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="dark"
+                              size="sm"
+                              className="mt-auto add-to-cart-btn"
+                              onClick={() => handleCardAddToCart(item)}
+                            >
+                              Add to Cart
+                            </Button>
+                          )}
                         </Card.Body>
                       </Card>
                     </Col>
@@ -452,7 +489,7 @@ export default function Home() {
         onHide={() => setQuickViewProduct(null)}
         product={quickViewProduct}
         categoryName={quickViewCategoryName}
-        onAddToCart={handleQuickDone}
+        onDone={handleQuickDone}
       />
 
       <ToastContainer

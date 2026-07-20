@@ -10,6 +10,7 @@ import Privacy from "./pages/Privacy/Privacy";
 import Terms from "./pages/Terms/Terms";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import Cart from "./pages/Cart/Cart";
+import { CatalogProvider } from "./context/CatalogContext";
 
 // Route map — every page lives inside <Layout /> so Header/Footer render
 // once and only the matched page's content swaps out underneath them.
@@ -17,20 +18,22 @@ export default function App() {
   return (
     <ErrorBoundary>
       <CartProvider>
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/cart" element={<Cart />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+        <CatalogProvider>
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/cart" element={<Cart />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </CatalogProvider>
       </CartProvider>
     </ErrorBoundary>
   );
