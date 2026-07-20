@@ -8,17 +8,17 @@
 // e.g. VITE_API_BASE_URL=https://api.synergein.com/api
 // Set it in a local .env file (see .env.example).
 
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
   // withCredentials is needed if the Laravel backend uses Sanctum's
   // cookie-based session auth for guest carts / logged-in users.
   // Leave this on once that decision is confirmed with the backend dev.
-  withCredentials: true,
+  withCredentials: false,
   headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
@@ -30,15 +30,15 @@ api.interceptors.response.use(
     if (error.response) {
       console.error(
         `API error ${error.response.status}:`,
-        error.response.data?.message || error.message
+        error.response.data?.message || error.message,
       );
     } else if (error.request) {
-      console.error('API error: no response received', error.message);
+      console.error("API error: no response received", error.message);
     } else {
-      console.error('API error:', error.message);
+      console.error("API error:", error.message);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
