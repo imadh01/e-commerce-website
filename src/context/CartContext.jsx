@@ -1,46 +1,62 @@
-// Cart state, shared across the app (Header badge, Home product grid,
-// quick-view modal all read/write this same state).
-//
-// This is intentionally plain React Context + useReducer — no Redux.
-// At this project's size, Context is simpler and has no extra dependency.
-//
-// Note: wishlist was considered but dropped for now — there's no page
-// to view saved items yet, so a toggle with nowhere to see the result
-// isn't a real feature. Add it back properly (with a Wishlist page)
-// if/when it's actually needed.
-
-import { createContext, useContext, useReducer } from "react";
+import { createContext, useContext, useReducer, useEffect } from "react";
 
 const CartContext = createContext(null);
 
-const initialState = {
-  // cartItems: { [productId]: quantity }
-  cartItems: {},
-};
+// cartItems shape changed:
+//   OLD: { [id]: quantity }
+//   NEW: { [id]: { quantity, name, image, price, mrp, code } }
+// The snapshot fields are what we saw at add-time. Real e-commerce
+// stores the price you paid, not today's price — same principle.
+
+const STORAGE_KEY = "synergein_cart_v1";
+
+function loadInitialState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { cartItems: {} };
+    return { cartItems: JSON.parse(raw) };
+  } catch {
+    // Corrupt localStorage / private mode — start fresh, don't crash.
+    return { cartItems: {} };
+  }
+}
 
 function cartReducer(state, action) {
   switch (action.type) {
     case "ADD_TO_CART": {
-      const { productId, quantity = 1 } = action.payload;
-      const currentQty = state.cartItems[productId] || 0;
+      const { product, quantity = 1 } = action.payload;
+      const existing = state.cartItems[product.id];
+      const currentQty = existing?.quantity || 0;
       return {
         ...state,
         cartItems: {
           ...state.cartItems,
-          [productId]: currentQty + quantity,
+          [product.id]: {
+            quantity: currentQty + quantity,
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            mrp: product.mrp,
+            code: product.code,
+          },
         },
       };
     }
 
     case "SET_QUANTITY": {
       const { productId, quantity } = action.payload;
+      const existing = state.cartItems[productId];
+      if (!existing) return state; // nothing to update
       if (quantity <= 0) {
         const { [productId]: _removed, ...rest } = state.cartItems;
         return { ...state, cartItems: rest };
       }
       return {
         ...state,
-        cartItems: { ...state.cartItems, [productId]: quantity },
+        cartItems: {
+          ...state.cartItems,
+          [productId]: { ...existing, quantity },
+        },
       };
     }
 
@@ -58,18 +74,34 @@ function cartReducer(state, action) {
 }
 
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(
+    cartReducer,
+    undefined,
+    loadInitialState,
+  );
+
+  // Persist to localStorage on every change. useEffect runs after render,
+  // so we're not blocking the UI. If storage is unavailable (Safari
+  // private mode has quirks), fail silently — the app still works.
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cartItems));
+    } catch {
+      /* ignore */
+    }
+  }, [state.cartItems]);
 
   const cartCount = Object.values(state.cartItems).reduce(
-    (sum, qty) => sum + qty,
+    (sum, entry) => sum + entry.quantity,
     0,
   );
 
   const value = {
     cartItems: state.cartItems,
     cartCount,
-    addToCart: (productId, quantity = 1) =>
-      dispatch({ type: "ADD_TO_CART", payload: { productId, quantity } }),
+    // Note: addToCart now takes the whole product object, not just an id.
+    addToCart: (product, quantity = 1) =>
+      dispatch({ type: "ADD_TO_CART", payload: { product, quantity } }),
     setQuantity: (productId, quantity) =>
       dispatch({ type: "SET_QUANTITY", payload: { productId, quantity } }),
     removeFromCart: (productId) =>

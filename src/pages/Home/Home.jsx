@@ -1,11 +1,29 @@
 import { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Spinner,
+  Alert,
+  Pagination,
+  ListGroup,
+  Form,
+  InputGroup,
+} from "react-bootstrap";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { useCart } from "../../context/CartContext";
 import { fetchCatalog } from "./homeApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Home.css";
+import { Toast, ToastContainer } from "react-bootstrap";
+import QuickViewModal from "../../components/QuickViewModal/QuickViewModal";
+import { getDiscountPercent } from "../../utils/pricing";
 
 export default function Home() {
   usePageTitle("Home");
+  const { addToCart } = useCart();
 
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -16,6 +34,12 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSubcategory, setActiveSubcategory] = useState(null);
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const itemsPerPage = 20;
+
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: "" });
 
   useEffect(() => {
     let isCancelled = false;
@@ -44,38 +68,23 @@ export default function Home() {
     }
 
     loadCatalog();
-
     return () => {
       isCancelled = true;
     };
   }, []);
 
-  // Deduplicate by product ID — the backend currently returns some
+  // Deduplicate + price filter
   const uniqueItems = items.reduce((acc, item) => {
     if (!acc.some((existing) => existing.id === item.id)) {
       acc.push(item);
     }
     return acc;
   }, []);
-
   const availableItems = uniqueItems.filter(
     (item) => parseFloat(item.price) > 0,
   );
 
-  // Subcategory takes priority over category when both could apply —
-  // clicking a subcategory is a more specific choice than the category
-  // it belongs to.
-  //   console.log(
-  //     "Sample product subcategory_id:",
-  //     availableItems[0]?.subcategory_id,
-  //     typeof availableItems[0]?.subcategory_id,
-  //   );
-  //   console.log("Sample subcategory object:", subcategories[0]);
-  //   console.log(
-  //     "Active subcategory selected:",
-  //     activeSubcategory,
-  //     typeof activeSubcategory,
-  //   );
+  // Category/subcategory filter
   let filteredItems = availableItems;
   if (activeSubcategory !== null) {
     filteredItems = availableItems.filter(
@@ -87,28 +96,140 @@ export default function Home() {
     );
   }
 
-  //   console.log("Filter debug:", {
-  //     activeCategory,
-  //     activeSubcategory,
-  //     totalAvailable: availableItems.length,
-  //     afterFilter: filteredItems.length,
-  //     sampleFiltered: filteredItems.slice(0, 3).map((i) => ({
-  //       name: i.name,
-  //       category_id: i.category_id,
-  //       subcategory_id: i.subcategory_id,
-  //     })),
-  //   });
+  // Search filter
+  if (searchTerm.trim() !== "") {
+    const term = searchTerm.trim().toLowerCase();
+    filteredItems = filteredItems.filter((item) =>
+      item.name.toLowerCase().includes(term),
+    );
+  }
+
+  // Pagination
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  // Shared reset helper
+  function resetFilters() {
+    setActiveCategory("all");
+    setActiveSubcategory(null);
+    setExpandedCategoryId(null);
+    setCurrentPage(1);
+  }
+
+  function handleCategoryClick(catId, isExpanded) {
+    setActiveCategory(catId);
+    setActiveSubcategory(null);
+    setExpandedCategoryId(isExpanded ? null : catId);
+    setCurrentPage(1);
+  }
+
+  function handleSubcategoryClick(e, catId, subId) {
+    e.stopPropagation();
+    setActiveCategory(catId);
+    setActiveSubcategory(subId);
+    setCurrentPage(1);
+  }
+
+  // Build pagination items
+  function renderPagination() {
+    if (totalPages <= 1) return null;
+
+    const items = [];
+    items.push(
+      <Pagination.Prev
+        key="prev"
+        disabled={currentPage === 1}
+        onClick={() => changePage((p) => p - 1)}
+      />,
+    );
+
+    const pagesToShow = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+        pagesToShow.push(i);
+      }
+    }
+
+    pagesToShow.forEach((page, index) => {
+      const prev = pagesToShow[index - 1];
+      if (prev && page - prev > 1) {
+        items.push(<Pagination.Ellipsis key={`ellipsis-${page}`} disabled />);
+      }
+      items.push(
+        <Pagination.Item
+          key={page}
+          active={currentPage === page}
+          onClick={() => changePage(page)}
+        >
+          {page}
+        </Pagination.Item>,
+      );
+    });
+
+    items.push(
+      <Pagination.Next
+        key="next"
+        disabled={currentPage === totalPages}
+        onClick={() => changePage((p) => p + 1)}
+      />,
+    );
+
+    return items;
+  }
+
+  function handleQuickDone(product, action) {
+    setQuickViewProduct(null);
+    setToast({
+      show: true,
+      message:
+        action === "added"
+          ? `${product.name} added to cart`
+          : `Cart updated for ${product.name}`,
+    });
+  }
+
+  // Resolve category name for the modal — the product only has category_id.
+  const quickViewCategoryName = quickViewProduct
+    ? categories.find((c) => c.id === quickViewProduct.category_id)?.name
+    : null;
+
+  function changePage(page) {
+    setCurrentPage(page);
+    document
+      .querySelector(".shop-main")
+      ?.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   return (
     <div className="home-page">
+      {/* ===== HERO BANNER ===== */}
       <section className="hero-banner">
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1>Thousand of best grocery items</h1>
           <p>Online Grocery Shopping at Low Price in Worldwide on Synergein</p>
-          <div className="hero-search">
-            <input type="text" placeholder="What are you looking..." />
-            <button type="button" aria-label="Search">
+          <InputGroup
+            className="hero-search-group mx-auto"
+            style={{ maxWidth: 560 }}
+          >
+            <Form.Control
+              type="text"
+              placeholder="What are you looking..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="hero-search-input"
+            />
+            <Button
+              variant="warning"
+              className="hero-search-btn"
+              aria-label="Search"
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <circle
                   cx="11"
@@ -124,71 +245,63 @@ export default function Home() {
                   strokeLinecap="round"
                 />
               </svg>
-            </button>
-          </div>
+            </Button>
+          </InputGroup>
         </div>
       </section>
 
-      <section className="shop-layout">
-        <div className="container-fluid px-4">
-          <div className="row g-4">
-            <aside className="col-12 col-md-3 category-sidebar">
-              <div className="cat-item">
-                <button
-                  type="button"
-                  className={`cat-row ${activeCategory === "all" ? "active-cat" : ""}`}
-                  onClick={() => {
-                    setActiveCategory("all");
-                    setActiveSubcategory(null);
-                    setExpandedCategoryId(null);
-                  }}
-                >
-                  <span className="cat-icon">🛒</span>
-                  <span className="cat-name">All Products</span>
-                </button>
-              </div>
+      {/* ===== SHOP LAYOUT ===== */}
+      <Container fluid className="shop-layout px-4">
+        <Row className="g-4">
+          {/* ===== SIDEBAR ===== */}
+          <Col xs={12} md={3}>
+            <ListGroup className="category-sidebar">
+              <ListGroup.Item
+                action
+                active={activeCategory === "all"}
+                onClick={resetFilters}
+                className="d-flex align-items-center gap-2"
+              >
+                <span>🛒</span>
+                <span className="fw-semibold">All Products</span>
+              </ListGroup.Item>
 
               {categories.map((cat) => {
-                const catSubcategories = subcategories.filter(
-                  (sub) => sub.category_id === cat.id,
+                const catSubs = subcategories.filter(
+                  (s) => s.category_id === cat.id,
                 );
                 const isExpanded = expandedCategoryId === cat.id;
+                const isActive =
+                  activeCategory === cat.id && !activeSubcategory;
 
                 return (
-                  <div
-                    key={cat.id}
-                    className={`cat-item ${isExpanded ? "expanded" : ""}`}
-                  >
-                    <button
-                      type="button"
-                      className={`cat-row ${activeCategory === cat.id && !activeSubcategory ? "active-cat" : ""}`}
-                      onClick={() => {
-                        setActiveCategory(cat.id);
-                        setActiveSubcategory(null);
-                        // Toggle: clicking an already-expanded category collapses it
-                        setExpandedCategoryId(isExpanded ? null : cat.id);
-                      }}
+                  <div key={cat.id}>
+                    <ListGroup.Item
+                      action
+                      active={isActive}
+                      onClick={() => handleCategoryClick(cat.id, isExpanded)}
+                      className="d-flex align-items-center gap-2"
                     >
-                      <span className="cat-icon">
-                        <img
-                          src={cat.image}
-                          alt=""
-                          style={{
-                            width: 22,
-                            height: 22,
-                            objectFit: "cover",
-                            borderRadius: 4,
-                          }}
-                        />
+                      <img
+                        src={cat.image}
+                        alt=""
+                        width={22}
+                        height={22}
+                        style={{ objectFit: "cover", borderRadius: 4 }}
+                      />
+                      <span className="fw-semibold flex-grow-1">
+                        {cat.name}
                       </span>
-                      <span className="cat-name">{cat.name}</span>
-                      {catSubcategories.length > 0 && (
+                      {catSubs.length > 0 && (
                         <svg
-                          className="cat-chevron"
                           width="16"
                           height="16"
                           viewBox="0 0 24 24"
                           fill="none"
+                          style={{
+                            transform: isExpanded ? "rotate(180deg)" : "none",
+                            transition: "transform 0.25s ease",
+                          }}
                         >
                           <path
                             d="M6 9L12 15L18 9"
@@ -199,91 +312,166 @@ export default function Home() {
                           />
                         </svg>
                       )}
-                    </button>
+                    </ListGroup.Item>
 
-                    {isExpanded && catSubcategories.length > 0 && (
-                      <div className="cat-subitems">
-                        {catSubcategories.map((sub) => (
-                          <button
+                    {isExpanded && catSubs.length > 0 && (
+                      <ListGroup variant="flush" className="ms-4 border-0">
+                        {catSubs.map((sub) => (
+                          <ListGroup.Item
                             key={sub.id}
-                            type="button"
-                            className={`sub-link ${activeSubcategory === sub.id ? "active-sub" : ""}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log(
-                                "Subcategory clicked:",
-                                sub.id,
-                                sub.name,
-                              );
-                              setActiveCategory(cat.id);
-                              setActiveSubcategory(sub.id);
-                            }}
+                            action
+                            active={activeSubcategory === sub.id}
+                            onClick={(e) =>
+                              handleSubcategoryClick(e, cat.id, sub.id)
+                            }
+                            className="py-2 ps-3 border-0"
+                            style={{ fontSize: "0.88rem" }}
                           >
                             {sub.name}
-                          </button>
+                          </ListGroup.Item>
                         ))}
-                      </div>
+                      </ListGroup>
                     )}
                   </div>
                 );
               })}
-            </aside>
+            </ListGroup>
+          </Col>
 
-            <div className="col-12 col-md-9 shop-main">
-              <div className="products-header">
-                <h2>
-                  {activeSubcategory !== null
-                    ? subcategories.find((s) => s.id === activeSubcategory)
-                        ?.name || "Products"
-                    : activeCategory === "all"
-                      ? "All Products"
-                      : categories.find((c) => c.id === activeCategory)?.name ||
-                        "Products"}
-                </h2>
+          {/* ===== MAIN PRODUCT AREA ===== */}
+          <Col xs={12} md={9} className="shop-main">
+            <h2 className="fw-bold mb-3">
+              {activeSubcategory !== null
+                ? subcategories.find((s) => s.id === activeSubcategory)?.name ||
+                  "Products"
+                : activeCategory === "all"
+                  ? "All Products"
+                  : categories.find((c) => c.id === activeCategory)?.name ||
+                    "Products"}
+            </h2>
+
+            {/* Loading state */}
+            {isLoading && (
+              <div className="text-center py-5">
+                <Spinner animation="border" variant="warning" />
+                <p className="text-muted mt-3">Loading products...</p>
               </div>
+            )}
 
-              {isLoading && <p className="no-products">Loading products...</p>}
+            {/* Error state */}
+            {error && <Alert variant="danger">{error}</Alert>}
 
-              {error && <p className="no-products">{error}</p>}
+            {/* Empty state */}
+            {!isLoading && !error && filteredItems.length === 0 && (
+              <Alert variant="info">No products found in this category.</Alert>
+            )}
 
-              {!isLoading && !error && filteredItems.length === 0 && (
-                <p className="no-products">
-                  No products found in this category.
-                </p>
-              )}
-
-              {!isLoading && !error && filteredItems.length > 0 && (
-                <div className="row g-3">
-                  {filteredItems.map((item) => (
-                    <div key={item.id} className="col-6 col-md-4 col-lg-3">
-                      <div className="product-card h-100">
-                        <div className="product-image-wrap">
-                          <img
+            {/* Product grid */}
+            {!isLoading && !error && filteredItems.length > 0 && (
+              <>
+                <Row xs={2} md={3} lg={4} className="g-3">
+                  {paginatedItems.map((item) => (
+                    <Col key={item.id}>
+                      <Card className="h-100 product-card">
+                        <div
+                          className="product-image-wrap"
+                          onClick={() => setQuickViewProduct(item)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setQuickViewProduct(item);
+                            }
+                          }}
+                          style={{ cursor: "pointer" }}
+                        >
+                          {getDiscountPercent(item.price, item.mrp) && (
+                            <span className="product-discount-badge">
+                              {getDiscountPercent(item.price, item.mrp)}% OFF
+                            </span>
+                          )}
+                          <Card.Img
+                            variant="top"
                             src={item.image}
                             alt={item.name}
                             loading="lazy"
+                            className="product-img"
                           />
                         </div>
-                        <div className="product-price">
-                          ₹{parseFloat(item.price).toFixed(2)}
-                          {item.mrp &&
-                            parseFloat(item.mrp) > parseFloat(item.price) && (
-                              <span className="old-price">
-                                ₹{parseFloat(item.mrp).toFixed(2)}
-                              </span>
-                            )}
-                        </div>
-                        <div className="product-name">{item.name}</div>
-                        <div className="product-unit">{item.code}</div>
-                      </div>
-                    </div>
+                        <Card.Body className="d-flex flex-column">
+                          <div className="product-price mb-1">
+                            ₹{parseFloat(item.price).toFixed(2)}
+                            {item.mrp &&
+                              parseFloat(item.mrp) > parseFloat(item.price) && (
+                                <span
+                                  className="text-muted text-decoration-line-through ms-2"
+                                  style={{ fontSize: "0.9rem" }}
+                                >
+                                  ₹{parseFloat(item.mrp).toFixed(2)}
+                                </span>
+                              )}
+                          </div>
+                          <Card.Title className="product-name">
+                            {item.name}
+                          </Card.Title>
+                          <Card.Text className="text-muted small mb-3">
+                            {item.code}
+                          </Card.Text>
+                          <Button
+                            variant="dark"
+                            size="sm"
+                            className="mt-auto add-to-cart-btn"
+                            onClick={() => addToCart(item)}
+                          >
+                            Add to Cart
+                          </Button>
+                        </Card.Body>
+                      </Card>
+                    </Col>
                   ))}
+                </Row>
+
+                {/* Pagination */}
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mt-4 pt-3 border-top">
+                  <p className="text-muted small fw-semibold mb-0">
+                    Showing {(currentPage - 1) * itemsPerPage + 1}–
+                    {Math.min(currentPage * itemsPerPage, filteredItems.length)}{" "}
+                    of {filteredItems.length} products
+                  </p>
+                  <Pagination className="mb-0">{renderPagination()}</Pagination>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+              </>
+            )}
+          </Col>
+        </Row>
+      </Container>
+
+      <QuickViewModal
+        show={!!quickViewProduct}
+        onHide={() => setQuickViewProduct(null)}
+        product={quickViewProduct}
+        categoryName={quickViewCategoryName}
+        onAddToCart={handleQuickDone}
+      />
+
+      <ToastContainer
+        position="bottom-end"
+        className="p-3"
+        style={{ zIndex: 1100 }}
+      >
+        <Toast
+          show={toast.show}
+          onClose={() => setToast({ show: false, message: "" })}
+          delay={2500}
+          autohide
+          bg="success"
+        >
+          <Toast.Body className="text-white fw-semibold">
+            ✓ {toast.message}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   );
 }

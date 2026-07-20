@@ -64,7 +64,7 @@ export default function Header() {
           )}
 
           <div className="header-actions">
-            <button type="button" className="cart-btn" aria-label="Cart">
+            <Link to="/cart" className="cart-btn" aria-label="Cart">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M6 6H21L19 15H8L6 6Z"
@@ -83,7 +83,7 @@ export default function Header() {
               </svg>
               <span className="cart-count">{cartCount}</span>
               <span className="action-label">Cart</span>
-            </button>
+            </Link>
 
             <button type="button" className="signin-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
