@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import "./Header.css";
 
@@ -12,6 +12,50 @@ const navItems = [
   { label: "Privacy Policy", path: "/privacy" },
   { label: "Terms & Conditions", path: "/terms" },
 ];
+// Separated because it uses useSearchParams, which only makes sense
+// on the home page. Keeping it inline would mean Header always
+// subscribes to URL param changes even on /about, /faq, etc.
+function HeaderSearch() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentQuery = searchParams.get("q") || "";
+
+  function handleChange(e) {
+    const value = e.target.value;
+    if (value) {
+      setSearchParams({ q: value }, { replace: true });
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    // Already filtering in real time via URL params — this just
+    // prevents form submission / page reload if wrapped in a form.
+  }
+
+  return (
+    <div className="search-bar">
+      <input
+        type="text"
+        placeholder="What are you looking..."
+        value={currentQuery}
+        onChange={handleChange}
+      />
+      <button type="button" aria-label="Search" onClick={handleSubmit}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+          <path
+            d="M21 21L16.65 16.65"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+}
 
 export default function Header() {
   // Tracks whether the mobile nav menu is open. Starts closed.
@@ -40,28 +84,7 @@ export default function Header() {
             />
           </Link>
 
-          {isHomePage && (
-            <div className="search-bar">
-              <input type="text" placeholder="What are you looking..." />
-              <button type="button" aria-label="Search">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="11"
-                    cy="11"
-                    r="7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M21 21L16.65 16.65"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          )}
+          {isHomePage && <HeaderSearch />}
 
           <div className="header-actions">
             <Link to="/cart" className="cart-btn" aria-label="Cart">

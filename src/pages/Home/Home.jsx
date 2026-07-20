@@ -21,6 +21,7 @@ import { Toast, ToastContainer } from "react-bootstrap";
 import QuickViewModal from "../../components/QuickViewModal/QuickViewModal";
 import { getDiscountPercent } from "../../utils/pricing";
 import { useCatalog } from "../../context/CatalogContext";
+import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
   usePageTitle("Home");
@@ -42,7 +43,8 @@ export default function Home() {
   const [activeSubcategory, setActiveSubcategory] = useState(null);
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchTerm = searchParams.get("q") || "";
   const itemsPerPage = 20;
 
   const [quickViewProduct, setQuickViewProduct] = useState(null);
@@ -124,6 +126,7 @@ export default function Home() {
     setActiveSubcategory(null);
     setExpandedCategoryId(null);
     setCurrentPage(1);
+    setSearchTerm("");
   }
 
   function handleCategoryClick(catId, isExpanded) {
@@ -211,6 +214,13 @@ export default function Home() {
     document
       .querySelector(".shop-main")
       ?.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function setSearchTerm(value) {
+    if (value) {
+      setSearchParams({ q: value }, { replace: true });
+    } else {
+      setSearchParams({}, { replace: true });
+    }
   }
 
   return (
