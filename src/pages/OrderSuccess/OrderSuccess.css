@@ -1,0 +1,38 @@
+.order-success-page {
+  min-height: calc(100vh - 200px);
+}
+
+.order-success-content {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.order-success-content h1 {
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+}
+
+.order-id-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-gray);
+  padding: 16px 24px;
+  border-radius: 10px;
+  margin-top: 24px;
+}
+
+.order-id-box strong {
+  font-size: 1.1rem;
+  color: var(--brand-blue);
+  letter-spacing: 1px;
+}
