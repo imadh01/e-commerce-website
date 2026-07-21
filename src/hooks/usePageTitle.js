@@ -5,6 +5,6 @@ import { useEffect } from "react";
 // suffix here means changing the site name later only requires one edit.
 export function usePageTitle(title) {
   useEffect(() => {
-    document.title = title ? `${title} | Synergein` : "Synergein";
+    document.title = title ? `${title} | Mamluk` : "Mamluk";
   }, [title]);
 }

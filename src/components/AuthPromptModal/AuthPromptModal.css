@@ -1,0 +1,15 @@
+.auth-prompt-body {
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.auth-prompt-icon {
+  font-size: 2.5rem;
+  margin-bottom: 14px;
+}
+
+.auth-prompt-title {
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 8px;
+}

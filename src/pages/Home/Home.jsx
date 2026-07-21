@@ -22,6 +22,8 @@ import QuickViewModal from "../../components/QuickViewModal/QuickViewModal";
 import { getDiscountPercent } from "../../utils/pricing";
 import { useCatalog } from "../../context/CatalogContext";
 import { useSearchParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import AuthPromptModal from "../../components/AuthPromptModal/AuthPromptModal";
 
 export default function Home() {
   usePageTitle("Home");
@@ -200,10 +202,18 @@ export default function Home() {
           : `Cart updated for ${product.name}`,
     });
   }
+
+  const { isLoggedIn } = useAuth();
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   function handleCardAddToCart(item) {
+    if (!isLoggedIn) {
+      setShowAuthPrompt(true);
+      return;
+    }
     addToCart(item);
     setToast({ show: true, message: `${item.name} added to cart` });
   }
+
   // Resolve category name for the modal — the product only has category_id.
   const quickViewCategoryName = quickViewProduct
     ? categories.find((c) => c.id === quickViewProduct.category_id)?.name
@@ -440,7 +450,7 @@ export default function Home() {
                           </Card.Text>
 
                           {/* Cart-aware button: shows Add or +/- controls */}
-                          {cartItems[item.id]?.quantity > 0 ? (
+                          {isLoggedIn && cartItems[item.id]?.quantity > 0 ? (
                             <div className="product-qty-control mt-auto">
                               <button
                                 type="button"
@@ -450,7 +460,6 @@ export default function Home() {
                                     cartItems[item.id].quantity - 1,
                                   )
                                 }
-                                aria-label="Decrease quantity"
                               >
                                 −
                               </button>
@@ -458,7 +467,6 @@ export default function Home() {
                               <button
                                 type="button"
                                 onClick={() => addToCart(item, 1)}
-                                aria-label="Increase quantity"
                               >
                                 +
                               </button>
@@ -500,8 +508,12 @@ export default function Home() {
         product={quickViewProduct}
         categoryName={quickViewCategoryName}
         onDone={handleQuickDone}
+        onAuthRequired={() => setShowAuthPrompt(true)}
       />
-
+      <AuthPromptModal
+        show={showAuthPrompt}
+        onHide={() => setShowAuthPrompt(false)}
+      />
       <ToastContainer
         position="bottom-end"
         className="p-3"

@@ -13,35 +13,40 @@ import Cart from "./pages/Cart/Cart";
 import { CatalogProvider } from "./context/CatalogContext";
 import Checkout from "./pages/Checkout/Checkout";
 import OrderSuccess from "./pages/OrderSuccess/OrderSuccess";
+import { AuthProvider } from "./context/AuthContext";
+import Login from "./pages/Login/Login";
 
 // Route map — every page lives inside <Layout /> so Header/Footer render
 // once and only the matched page's content swaps out underneath them.
 export default function App() {
   return (
     <ErrorBoundary>
-      <CartProvider>
-        <CatalogProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route
-                  path="/order-success/:orderId"
-                  element={<OrderSuccess />}
-                />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </CatalogProvider>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <CatalogProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route
+                    path="/order-success/:orderId"
+                    element={<OrderSuccess />}
+                  />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </CatalogProvider>
+        </CartProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

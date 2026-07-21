@@ -17,7 +17,7 @@ export default function OrderSuccess() {
         </p>
 
         <div className="order-id-box">
-          <span className="text-muted">Order ID</span>
+          <span className="text-muted">Order Number</span>
           <strong>{orderId}</strong>
         </div>
 

@@ -2,6 +2,7 @@ import { Modal, Button, Badge } from "react-bootstrap";
 import { useCart } from "../../context/CartContext";
 import { getDiscountPercent } from "../../utils/pricing";
 import "./QuickViewModal.css";
+import { useAuth } from "../../context/AuthContext";
 
 export default function QuickViewModal({
   show,
@@ -23,6 +24,19 @@ export default function QuickViewModal({
   const price = parseFloat(product.price);
   const mrp = product.mrp ? parseFloat(product.mrp) : null;
   const discountPct = getDiscountPercent(product.price, product.mrp);
+  const { isLoggedIn } = useAuth();
+
+  // In handlePrimary:
+  function handlePrimary() {
+    if (!isLoggedIn) {
+      onHide();
+      // The parent will show the auth prompt
+      onAuthRequired?.();
+      return;
+    }
+    if (!inCart) addToCart(product, 1);
+    onDone(product, inCart ? "updated" : "added");
+  }
 
   function decrement() {
     // setQuantity handles qty=0 by removing the item from the cart.

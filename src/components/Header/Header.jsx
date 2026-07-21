@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import "./Header.css";
+import { useAuth } from "../../context/AuthContext";
 
 // The 6 real pages, matching our router paths in App.jsx.
 const navItems = [
@@ -60,6 +61,7 @@ function HeaderSearch() {
 export default function Header() {
   // Tracks whether the mobile nav menu is open. Starts closed.
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isLoggedIn, logout } = useAuth();
 
   // Pulls the live cart count from CartContext — this is the connection
   // point: whatever the Home page's "Add to Cart" button does, this
@@ -108,24 +110,66 @@ export default function Header() {
               <span className="action-label">Cart</span>
             </Link>
 
-            <button type="button" className="signin-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle
-                  cx="12"
-                  cy="8"
-                  r="4"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M4 20C4 16.5 7.5 14 12 14C16.5 14 20 16.5 20 20"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="action-label">Sign In</span>
-            </button>
+            {isLoggedIn ? (
+              <div className="user-menu">
+                <span className="user-name">
+                  {user.CustomerName?.split(" ")[0] || user.PrimaryMobile}
+                </span>
+                <button
+                  type="button"
+                  className="signin-btn"
+                  onClick={logout}
+                  title="Sign out"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <polyline
+                      points="16 17 21 12 16 7"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <line
+                      x1="21"
+                      y1="12"
+                      x2="9"
+                      y2="12"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span className="action-label">Logout</span>
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="signin-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle
+                    cx="12"
+                    cy="8"
+                    r="4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M4 20C4 16.5 7.5 14 12 14C16.5 14 20 16.5 20 20"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="action-label">Sign In</span>
+              </Link>
+            )}
           </div>
 
           <button

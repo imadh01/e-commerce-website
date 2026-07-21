@@ -216,6 +216,22 @@
   transform: translateX(-50%) scaleX(1);
 }
 
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-name {
+  font-weight: 700;
+  color: var(--brand-blue);
+  font-size: 0.9rem;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .header-top-inner {

@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { getDiscountPercent } from "../../utils/pricing";
 import { getDeliverySlots, getTimeSlots } from "../../utils/deliverySlots";
@@ -22,6 +23,7 @@ export default function Checkout() {
   usePageTitle("Checkout");
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
+  const { user, isRegistered, saveCustomerDetails } = useAuth();
   const entries = Object.entries(cartItems);
 
   // Redirect if cart is empty
@@ -41,23 +43,38 @@ export default function Checkout() {
     );
   }
 
+  const savedAddresses = user?.Addresses || [];
+  const isNewUser = user?._isNew || !user?.UserID;
+
   // ===== FORM STATE =====
+  const [selectedAddressId, setSelectedAddressId] = useState(
+    savedAddresses.find((a) => a.IsDefault === 1)?.AddressID || null,
+  );
+  const [showNewAddressForm, setShowNewAddressForm] = useState(
+    savedAddresses.length === 0,
+  );
+
+  const [customerName, setCustomerName] = useState(user?.CustomerName || "");
   const [address, setAddress] = useState({
-    fullName: "",
-    phone: "",
+    addressType: "Home",
     addressLine1: "",
     addressLine2: "",
-    city: "",
+    landmark: "",
+    locality: "",
+    taluk: "",
+    district: "",
     state: "",
-    pincode: "",
+    country: "India",
+    postalCode: "",
   });
-  const [deliveryInstructions, setDeliveryInstructions] = useState("");
+
+  const [deliveryInstruction, setDeliveryInstruction] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(null);
   const [couponError, setCouponError] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [deliveryTime, setDeliveryTime] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMode, setPaymentMode] = useState("COD");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
@@ -84,7 +101,6 @@ export default function Checkout() {
   // ===== HANDLERS =====
   function handleAddressChange(field, value) {
     setAddress((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field on change
     if (formErrors[field]) {
       setFormErrors((prev) => {
         const next = { ...prev };
@@ -92,6 +108,16 @@ export default function Checkout() {
         return next;
       });
     }
+  }
+
+  function handleSelectSavedAddress(addrId) {
+    setSelectedAddressId(addrId);
+    setShowNewAddressForm(false);
+  }
+
+  function handleAddNewAddress() {
+    setSelectedAddressId(null);
+    setShowNewAddressForm(true);
   }
 
   function handleApplyCoupon() {
@@ -125,17 +151,25 @@ export default function Checkout() {
 
   function validate() {
     const errors = {};
-    if (!address.fullName.trim()) errors.fullName = "Name is required";
-    if (!address.phone.trim()) errors.phone = "Phone is required";
-    else if (!/^\d{10}$/.test(address.phone.trim()))
-      errors.phone = "Enter a valid 10-digit phone number";
-    if (!address.addressLine1.trim())
-      errors.addressLine1 = "Address is required";
-    if (!address.city.trim()) errors.city = "City is required";
-    if (!address.state.trim()) errors.state = "State is required";
-    if (!address.pincode.trim()) errors.pincode = "Pincode is required";
-    else if (!/^\d{6}$/.test(address.pincode.trim()))
-      errors.pincode = "Enter a valid 6-digit pincode";
+
+    if (isNewUser && !customerName.trim()) {
+      errors.customerName = "Name is required";
+    }
+
+    if (showNewAddressForm || savedAddresses.length === 0) {
+      if (!address.addressLine1.trim())
+        errors.addressLine1 = "Address is required";
+      if (!address.locality.trim()) errors.locality = "Locality is required";
+      if (!address.district.trim()) errors.district = "District is required";
+      if (!address.state.trim()) errors.state = "State is required";
+      if (!address.postalCode.trim())
+        errors.postalCode = "Postal code is required";
+      else if (!/^\d{6}$/.test(address.postalCode.trim()))
+        errors.postalCode = "Enter a valid 6-digit postal code";
+    } else if (!selectedAddressId) {
+      errors.address = "Please select a delivery address";
+    }
+
     if (!deliveryDate) errors.deliveryDate = "Select a delivery date";
     if (!deliveryTime) errors.deliveryTime = "Select a delivery time";
 
@@ -145,7 +179,6 @@ export default function Checkout() {
 
   async function handlePlaceOrder() {
     if (!validate()) {
-      // Scroll to the first error
       const firstErrorField = document.querySelector(".is-invalid");
       firstErrorField?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -153,37 +186,81 @@ export default function Checkout() {
 
     setIsSubmitting(true);
     try {
-      const orderPayload = {
+      // If new user, save customer details first
+      if (isNewUser) {
+        await saveCustomerDetails({
+          CustomerName: customerName.trim(),
+          AddressLine1: address.addressLine1,
+          AddressLine2: address.addressLine2,
+          Landmark: address.landmark,
+          Locality: address.locality,
+          Taluk: address.taluk,
+          District: address.district,
+          State: address.state,
+          Country: address.country,
+          PostalCode: address.postalCode,
+          AddressType: address.addressType,
+        });
+      }
+
+      // Build the address for the order
+      let orderAddress;
+      if (showNewAddressForm || savedAddresses.length === 0) {
+        orderAddress = {
+          addressId: null,
+          addressType: address.addressType,
+          addressLine1: address.addressLine1,
+          addressLine2: address.addressLine2,
+          landmark: address.landmark,
+          locality: address.locality,
+          taluk: address.taluk,
+          district: address.district,
+          state: address.state,
+          country: address.country,
+          postalCode: address.postalCode,
+        };
+      } else {
+        const selected = savedAddresses.find(
+          (a) => a.AddressID === selectedAddressId,
+        );
+        orderAddress = {
+          addressId: selected.AddressID,
+          addressType: selected.AddressType,
+          addressLine1: selected.AddressLine1,
+          addressLine2: selected.AddressLine2,
+          landmark: selected.Landmark,
+          locality: selected.Locality,
+          taluk: selected.Taluk,
+          district: selected.District,
+          state: selected.State,
+          country: selected.Country,
+          postalCode: selected.PostalCode,
+        };
+      }
+
+      const orderData = {
+        ...orderAddress,
         items: entries.map(([id, item]) => ({
-          productId: id,
-          name: item.name,
+          productId: parseInt(id),
           price: item.price,
+          mrp: item.mrp,
+          discount: 0,
           quantity: item.quantity,
-          image: item.image,
         })),
-        address,
-        deliveryInstructions,
+        paymentMode: paymentMode,
         deliveryDate,
         deliveryTime,
-        paymentMethod,
-        coupon: couponApplied
-          ? { code: couponApplied.code, discount: couponDiscount }
-          : null,
-        totals: {
-          subtotal: totals.subtotal,
-          savings,
-          couponDiscount,
-          finalTotal,
-        },
+        deliveryInstruction,
+        voucherDiscount: couponDiscount,
       };
 
-      const order = await placeOrder(orderPayload);
+      const order = await placeOrder(orderData);
       clearCart();
-      navigate(`/order-success/${order.id}`);
+      navigate(`/order-success/${order.OrderNumber}`);
     } catch (err) {
       console.error("Order failed:", err);
       setFormErrors({
-        submit: "Something went wrong. Please try again.",
+        submit: err.message || "Something went wrong. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -197,6 +274,42 @@ export default function Checkout() {
       <Row className="g-4">
         {/* ===== LEFT: FORMS ===== */}
         <Col lg={8}>
+          {/* Customer Name (new users only) */}
+          {isNewUser && (
+            <Card className="checkout-card">
+              <Card.Body>
+                <h5 className="checkout-section-title">
+                  <span className="section-number">•</span>
+                  Your Details
+                </h5>
+                <Form.Group>
+                  <Form.Label className="checkout-label">
+                    Full Name *
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="John Doe"
+                    value={customerName}
+                    onChange={(e) => {
+                      setCustomerName(e.target.value);
+                      if (formErrors.customerName) {
+                        setFormErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.customerName;
+                          return next;
+                        });
+                      }
+                    }}
+                    isInvalid={!!formErrors.customerName}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.customerName}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Card.Body>
+            </Card>
+          )}
+
           {/* Delivery Address */}
           <Card className="checkout-card">
             <Card.Body>
@@ -205,131 +318,247 @@ export default function Checkout() {
                 Delivery Address
               </h5>
 
-              <Row className="g-3">
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">
-                      Full Name *
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="John Doe"
-                      value={address.fullName}
-                      onChange={(e) =>
-                        handleAddressChange("fullName", e.target.value)
-                      }
-                      isInvalid={!!formErrors.fullName}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.fullName}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">Phone *</Form.Label>
-                    <Form.Control
-                      type="tel"
-                      placeholder="9876543210"
-                      value={address.phone}
-                      onChange={(e) =>
-                        handleAddressChange("phone", e.target.value)
-                      }
-                      isInvalid={!!formErrors.phone}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.phone}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                <Col xs={12}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">
-                      Address Line 1 *
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="House/Flat No., Building, Street"
-                      value={address.addressLine1}
-                      onChange={(e) =>
-                        handleAddressChange("addressLine1", e.target.value)
-                      }
-                      isInvalid={!!formErrors.addressLine1}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.addressLine1}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                <Col xs={12}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">
-                      Address Line 2
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Landmark, Area (optional)"
-                      value={address.addressLine2}
-                      onChange={(e) =>
-                        handleAddressChange("addressLine2", e.target.value)
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">City *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Chennai"
-                      value={address.city}
-                      onChange={(e) =>
-                        handleAddressChange("city", e.target.value)
-                      }
-                      isInvalid={!!formErrors.city}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.city}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">State *</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Tamil Nadu"
-                      value={address.state}
-                      onChange={(e) =>
-                        handleAddressChange("state", e.target.value)
-                      }
-                      isInvalid={!!formErrors.state}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.state}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">
-                      Pincode *
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="600001"
-                      value={address.pincode}
-                      onChange={(e) =>
-                        handleAddressChange("pincode", e.target.value)
-                      }
-                      isInvalid={!!formErrors.pincode}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.pincode}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
+              {/* Saved addresses (existing users) */}
+              {savedAddresses.length > 0 && (
+                <>
+                  <div className="saved-addresses">
+                    {savedAddresses.map((addr) => (
+                      <div
+                        key={addr.AddressID}
+                        className={`saved-address-card ${
+                          selectedAddressId === addr.AddressID &&
+                          !showNewAddressForm
+                            ? "active"
+                            : ""
+                        }`}
+                        onClick={() => handleSelectSavedAddress(addr.AddressID)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleSelectSavedAddress(addr.AddressID);
+                          }
+                        }}
+                      >
+                        <div className="saved-address-header">
+                          <Badge
+                            bg={addr.IsDefault ? "warning" : "secondary"}
+                            text="dark"
+                          >
+                            {addr.AddressType || "Address"}
+                          </Badge>
+                          {addr.IsDefault === 1 && (
+                            <span className="default-tag">Default</span>
+                          )}
+                        </div>
+                        <div className="saved-address-radio">
+                          <div
+                            className={`address-radio ${
+                              selectedAddressId === addr.AddressID &&
+                              !showNewAddressForm
+                                ? "checked"
+                                : ""
+                            }`}
+                          />
+                        </div>
+                        <p className="saved-address-text">
+                          {addr.AddressLine1}
+                          {addr.AddressLine2 && `, ${addr.AddressLine2}`}
+                          {addr.Landmark && `, ${addr.Landmark}`}
+                        </p>
+                        <p className="saved-address-text text-muted">
+                          {[addr.Locality, addr.District, addr.State]
+                            .filter(Boolean)
+                            .join(", ")}
+                          {addr.PostalCode && ` - ${addr.PostalCode}`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    variant={showNewAddressForm ? "dark" : "outline-dark"}
+                    size="sm"
+                    className="mt-3"
+                    onClick={handleAddNewAddress}
+                  >
+                    + Add New Address
+                  </Button>
+
+                  {formErrors.address && (
+                    <Alert variant="danger" className="mt-3 small mb-0">
+                      {formErrors.address}
+                    </Alert>
+                  )}
+                </>
+              )}
+
+              {/* Address form (new users or "Add New" clicked) */}
+              {(showNewAddressForm || savedAddresses.length === 0) && (
+                <div className={savedAddresses.length > 0 ? "mt-4" : ""}>
+                  <Row className="g-3">
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Address Type
+                        </Form.Label>
+                        <Form.Select
+                          value={address.addressType}
+                          onChange={(e) =>
+                            handleAddressChange("addressType", e.target.value)
+                          }
+                        >
+                          <option value="Home">Home</option>
+                          <option value="Office">Office</option>
+                          <option value="Other">Other</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Postal Code *
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="600001"
+                          value={address.postalCode}
+                          onChange={(e) =>
+                            handleAddressChange("postalCode", e.target.value)
+                          }
+                          isInvalid={!!formErrors.postalCode}
+                          maxLength={6}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formErrors.postalCode}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col xs={12}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Address Line 1 *
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="House/Flat No., Building, Street"
+                          value={address.addressLine1}
+                          onChange={(e) =>
+                            handleAddressChange("addressLine1", e.target.value)
+                          }
+                          isInvalid={!!formErrors.addressLine1}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formErrors.addressLine1}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col xs={12}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Address Line 2
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Floor, Wing (optional)"
+                          value={address.addressLine2}
+                          onChange={(e) =>
+                            handleAddressChange("addressLine2", e.target.value)
+                          }
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Landmark
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Near bus stop"
+                          value={address.landmark}
+                          onChange={(e) =>
+                            handleAddressChange("landmark", e.target.value)
+                          }
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Locality *
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Anna Nagar"
+                          value={address.locality}
+                          onChange={(e) =>
+                            handleAddressChange("locality", e.target.value)
+                          }
+                          isInvalid={!!formErrors.locality}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formErrors.locality}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          Taluk
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Taluk"
+                          value={address.taluk}
+                          onChange={(e) =>
+                            handleAddressChange("taluk", e.target.value)
+                          }
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          District *
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Chennai"
+                          value={address.district}
+                          onChange={(e) =>
+                            handleAddressChange("district", e.target.value)
+                          }
+                          isInvalid={!!formErrors.district}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formErrors.district}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                      <Form.Group>
+                        <Form.Label className="checkout-label">
+                          State *
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          placeholder="Tamil Nadu"
+                          value={address.state}
+                          onChange={(e) =>
+                            handleAddressChange("state", e.target.value)
+                          }
+                          isInvalid={!!formErrors.state}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formErrors.state}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </div>
+              )}
             </Card.Body>
           </Card>
 
@@ -343,9 +572,9 @@ export default function Checkout() {
               <Form.Control
                 as="textarea"
                 rows={3}
-                placeholder="E.g. Ring the bell twice, leave at the door, call before delivery..."
-                value={deliveryInstructions}
-                onChange={(e) => setDeliveryInstructions(e.target.value)}
+                placeholder="E.g. Ring the bell twice, leave at the door..."
+                value={deliveryInstruction}
+                onChange={(e) => setDeliveryInstruction(e.target.value)}
               />
             </Card.Body>
           </Card>
@@ -480,36 +709,40 @@ export default function Checkout() {
 
               <div className="payment-options">
                 {[
-                  { value: "cod", label: "Cash on Delivery", icon: "💵" },
-                  { value: "card", label: "Credit / Debit Card", icon: "💳" },
-                  { value: "upi", label: "UPI", icon: "📱" },
+                  { value: "COD", label: "Cash on Delivery", icon: "💵" },
+                  { value: "Card", label: "Credit / Debit Card", icon: "💳" },
+                  { value: "UPI", label: "UPI", icon: "📱" },
                 ].map((method) => (
                   <div
                     key={method.value}
-                    className={`payment-option ${paymentMethod === method.value ? "active" : ""}`}
-                    onClick={() => setPaymentMethod(method.value)}
+                    className={`payment-option ${
+                      paymentMode === method.value ? "active" : ""
+                    }`}
+                    onClick={() => setPaymentMode(method.value)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        setPaymentMethod(method.value);
+                        setPaymentMode(method.value);
                       }
                     }}
                   >
                     <span className="payment-icon">{method.icon}</span>
                     <span className="payment-label">{method.label}</span>
                     <div
-                      className={`payment-radio ${paymentMethod === method.value ? "checked" : ""}`}
+                      className={`payment-radio ${
+                        paymentMode === method.value ? "checked" : ""
+                      }`}
                     />
                   </div>
                 ))}
               </div>
 
-              {paymentMethod !== "cod" && (
+              {paymentMode !== "COD" && (
                 <Alert variant="warning" className="mt-3 mb-0 small">
-                  ⚠️ Online payment gateway coming soon. For now, your order
-                  will be placed as Cash on Delivery.
+                  ⚠️ Online payment gateway coming soon. Your order will be
+                  placed as Cash on Delivery for now.
                 </Alert>
               )}
             </Card.Body>
@@ -521,7 +754,6 @@ export default function Checkout() {
           <Card className="checkout-summary-card">
             <h5 className="checkout-summary-title">Billing Summary</h5>
 
-            {/* Items preview */}
             <div className="checkout-items-preview">
               {entries.map(([id, item]) => {
                 const price = parseFloat(item.price);
