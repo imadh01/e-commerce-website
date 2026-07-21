@@ -221,7 +221,12 @@
   .shop-main {
     height: auto;
     overflow-y: visible;
+    scrollbar-width: none;
   }
+}
+.category-sidebar::-webkit-scrollbar,
+.shop-main::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
 
 @media (max-width: 480px) {

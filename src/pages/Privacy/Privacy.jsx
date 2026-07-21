@@ -238,7 +238,7 @@ export default function Privacy() {
               information relating to the same to{" "}
               <a href="mailto:info@synergein.com" className="inline-link">
                 info@synergein.com
-              </a>{" "}
+              </a>
               for necessary action.
             </p>
             <ol>

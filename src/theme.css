@@ -12,3 +12,11 @@
   --error-red: #d1453b;
   --font-main: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
 }
+
+a,
+a:hover,
+a:focus,
+a:active,
+a:visited {
+  text-decoration: none !important;
+}

@@ -78,8 +78,21 @@
   object-fit: cover;
   border-radius: 16px;
 }
+.store-badge {
+  text-decoration: none;
+}
 
+.store-badge:hover {
+  text-decoration: none;
+}
 /* ===== FOOTER SHELL ===== */
+.site-footer a {
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: none;
+}
 .site-footer {
   background: var(--white);
   border-top: 1px solid var(--border-soft);
@@ -105,7 +118,7 @@
 }
 
 .footer-logo-img {
-  height: 44px;
+  height: 56px;
   width: auto;
   display: block;
 }
