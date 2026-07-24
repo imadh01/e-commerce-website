@@ -5,9 +5,6 @@ import { useAuth } from "../../context/AuthContext";
 import { Modal, Button } from "react-bootstrap";
 import "./Header.css";
 
-// Inside the component:
-const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
 // The 6 real pages, matching our router paths in App.jsx.
 const navItems = [
   { label: "Home", path: "/" },
@@ -64,6 +61,7 @@ function HeaderSearch() {
 
 export default function Header() {
   // Tracks whether the mobile nav menu is open. Starts closed.
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isLoggedIn, logout } = useAuth();
 
