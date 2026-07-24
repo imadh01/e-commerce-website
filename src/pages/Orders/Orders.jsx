@@ -1,10 +1,48 @@
 import { useState, useEffect } from "react";
-import { Container, Card, Badge, Spinner, Button } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Badge,
+  Spinner,
+  Button,
+} from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { fetchCustomerOrders } from "../../api/orderApi";
 import "./Orders.css";
+
+const STATUS_CONFIG = {
+  Delivered: {
+    bg: "success",
+    color: "#059669",
+    bgLight: "#ecfdf5",
+    icon: "✅",
+  },
+  Confirmed: { bg: "info", color: "#0284c7", bgLight: "#e0f2fe", icon: "📋" },
+  Pending: { bg: "warning", color: "#d97706", bgLight: "#fef3c7", icon: "⏳" },
+  "Out for Delivery": {
+    bg: "primary",
+    color: "#2563eb",
+    bgLight: "#dbeafe",
+    icon: "🚚",
+  },
+  Packed: { bg: "secondary", color: "#6b7280", bgLight: "#f3f4f6", icon: "📦" },
+  Cancelled: { bg: "danger", color: "#dc2626", bgLight: "#fef2f2", icon: "❌" },
+};
+
+function getStatusConfig(status) {
+  return (
+    STATUS_CONFIG[status] || {
+      bg: "secondary",
+      color: "#6b7280",
+      bgLight: "#f3f4f6",
+      icon: "📋",
+    }
+  );
+}
 
 export default function Orders() {
   usePageTitle("My Orders");
@@ -15,7 +53,6 @@ export default function Orders() {
 
   useEffect(() => {
     if (!user?.UserID) return;
-
     async function loadOrders() {
       try {
         const data = await fetchCustomerOrders(user.UserID);
@@ -26,157 +63,219 @@ export default function Orders() {
         setIsLoading(false);
       }
     }
-
     loadOrders();
   }, [user]);
 
   if (!isLoggedIn) {
     return (
-      <Container className="orders-page py-5">
-        <div className="text-center py-5">
-          <h2 className="fw-bold" style={{ color: "var(--brand-blue)" }}>
-            Please sign in
-          </h2>
-          <p className="text-muted mt-2">
-            You need to be logged in to view your orders.
-          </p>
-          <Button
-            as={Link}
-            to="/login"
-            variant="dark"
-            size="lg"
-            className="mt-3"
-          >
-            Sign In
-          </Button>
+      <div className="orders-page">
+        <div className="orders-hero">
+          <Container>
+            <h1 className="orders-hero-title">My Orders</h1>
+          </Container>
         </div>
-      </Container>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <Container className="orders-page py-5">
-        <div className="text-center py-5">
-          <Spinner animation="border" />
-          <p className="text-muted mt-3">Loading orders...</p>
-        </div>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className="orders-page py-5">
-        <div className="text-center py-5">
-          <h2 className="fw-bold" style={{ color: "var(--brand-blue)" }}>
-            Something went wrong
-          </h2>
-          <p className="text-muted mt-2">{error}</p>
-          <Button variant="dark" onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
-        </div>
-      </Container>
+        <Container className="py-5">
+          <div className="text-center py-5">
+            <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🔒</div>
+            <h2 className="fw-bold" style={{ color: "var(--brand-blue)" }}>
+              Please sign in
+            </h2>
+            <p className="text-muted mt-2">
+              You need to be logged in to view your orders.
+            </p>
+            <Button as={Link} to="/login" className="orders-action-btn mt-3">
+              Sign In
+            </Button>
+          </div>
+        </Container>
+      </div>
     );
   }
 
   return (
-    <Container className="orders-page py-4">
-      <h1 className="orders-title">My Orders</h1>
+    <div className="orders-page">
+      <div className="orders-hero">
+        <Container>
+          <div className="orders-hero-content">
+            <div>
+              <h1 className="orders-hero-title">My Orders</h1>
+              <p className="orders-hero-sub">Track and manage your purchases</p>
+            </div>
+            <Link to="/profile" className="orders-back-link">
+              ← Back to Profile
+            </Link>
+          </div>
+        </Container>
+      </div>
 
-      {orders.length === 0 ? (
-        <div className="orders-empty">
-          <div className="orders-empty-icon">📦</div>
-          <h3>No orders yet</h3>
-          <p className="text-muted">Start shopping to see your orders here.</p>
-          <Button as={Link} to="/" variant="dark" size="lg" className="mt-3">
-            Browse Products
-          </Button>
-        </div>
-      ) : (
-        <div className="orders-list">
-          {orders.map((order) => {
-            const statusColor =
-              order.Status === "Delivered"
-                ? "success"
-                : order.Status === "Pending"
-                  ? "warning"
-                  : order.Status === "Cancelled"
-                    ? "danger"
-                    : order.Status === "Confirmed"
-                      ? "info"
-                      : "secondary";
+      <Container className="orders-content py-4">
+        {isLoading ? (
+          <div className="text-center py-5">
+            <Spinner
+              animation="border"
+              style={{ color: "var(--brand-orange)" }}
+            />
+            <p className="text-muted mt-3">Loading your orders...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-5">
+            <div style={{ fontSize: "3rem", marginBottom: "16px" }}>😕</div>
+            <h3 className="fw-bold" style={{ color: "var(--brand-blue)" }}>
+              Something went wrong
+            </h3>
+            <p className="text-muted mt-2">{error}</p>
+            <Button
+              className="orders-action-btn"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
+        ) : orders.length === 0 ? (
+          <Card className="orders-empty-card">
+            <Card.Body className="text-center py-5">
+              <div className="orders-empty-icon">🛒</div>
+              <h3 className="fw-bold" style={{ color: "var(--brand-blue)" }}>
+                No orders yet
+              </h3>
+              <p className="text-muted">
+                Start shopping to see your orders here.
+              </p>
+              <Button as={Link} to="/" className="orders-action-btn mt-3">
+                Browse Products
+              </Button>
+            </Card.Body>
+          </Card>
+        ) : (
+          <>
+            <div className="orders-summary-bar">
+              <span className="orders-count">
+                {orders.length} order{orders.length !== 1 ? "s" : ""}
+              </span>
+            </div>
 
-            return (
-              <Card key={order.SalesOrderID} className="order-card">
-                <Card.Body>
-                  <div className="order-card-header">
-                    <div>
-                      <span className="order-number">{order.OrderNumber}</span>
-                      <span className="order-date">
-                        {new Date(order.OrderDate).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    <Badge bg={statusColor} className="order-status-badge">
-                      {order.Status}
-                    </Badge>
-                  </div>
+            <Row className="g-4">
+              {orders.map((order) => {
+                const sc = getStatusConfig(order.Status);
+                const itemCount = order.Items?.length || 0;
+                const orderDate = new Date(order.OrderDate).toLocaleDateString(
+                  "en-IN",
+                  {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  },
+                );
 
-                  <div className="order-card-body">
-                    <div className="order-items-preview">
-                      {order.Items &&
-                        order.Items.slice(0, 3).map((item) => (
-                          <div
-                            key={item.SalesOrderItemID}
-                            className="order-item-row"
-                          >
-                            <span className="order-item-name">
-                              {item.ItemName}
+                return (
+                  <Col md={6} key={order.SalesOrderID}>
+                    <Card
+                      className="order-card-v2"
+                      style={{ borderTop: `4px solid ${sc.color}` }}
+                    >
+                      <Card.Body className="p-0">
+                        {/* Header */}
+                        <div
+                          className="oc-header"
+                          style={{ background: sc.bgLight }}
+                        >
+                          <div className="oc-header-left">
+                            <span className="oc-icon">{sc.icon}</span>
+                            <div>
+                              <div className="oc-order-number">
+                                {order.OrderNumber}
+                              </div>
+                              <div className="oc-order-date">{orderDate}</div>
+                            </div>
+                          </div>
+                          <Badge bg={sc.bg} className="oc-status-badge">
+                            {order.Status}
+                          </Badge>
+                        </div>
+
+                        {/* Items */}
+                        <div className="oc-body">
+                          {order.Items &&
+                            order.Items.slice(0, 3).map((item) => (
+                              <div
+                                key={item.SalesOrderItemID}
+                                className="oc-item"
+                              >
+                                <div className="oc-item-left">
+                                  <span className="oc-item-name">
+                                    {item.ItemName}
+                                  </span>
+                                  {item.ItemCode && (
+                                    <span className="oc-item-code">
+                                      {item.ItemCode}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="oc-item-right">
+                                  <span className="oc-item-qty">
+                                    ×{item.Quantity}
+                                  </span>
+                                  <span className="oc-item-price">
+                                    ₹{parseFloat(item.LineTotal).toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          {itemCount > 3 && (
+                            <div className="oc-more-items">
+                              +{itemCount - 3} more item
+                              {itemCount - 3 > 1 ? "s" : ""}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="oc-footer">
+                          <div className="oc-total">
+                            <span className="oc-total-label">
+                              {itemCount} item{itemCount !== 1 ? "s" : ""} ·
+                              Total
                             </span>
-                            <span className="order-item-qty">
-                              x{item.Quantity}
-                            </span>
-                            <span className="order-item-price">
-                              ₹{parseFloat(item.LineTotal).toFixed(2)}
+                            <span className="oc-total-amount">
+                              ₹{parseFloat(order.TotalAmount).toFixed(2)}
                             </span>
                           </div>
-                        ))}
-                      {order.Items && order.Items.length > 3 && (
-                        <p className="text-muted small mb-0">
-                          +{order.Items.length - 3} more item
-                          {order.Items.length - 3 > 1 ? "s" : ""}
-                        </p>
-                      )}
-                    </div>
+                          {order.PaymentMode && (
+                            <span className="oc-payment">
+                              {order.PaymentMode}
+                            </span>
+                          )}
+                        </div>
 
-                    <div className="order-card-footer">
-                      <div className="order-total">
-                        <span className="text-muted">Total</span>
-                        <span className="order-total-amount">
-                          ₹{parseFloat(order.TotalAmount).toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="order-actions">
-                        <Link
-                          to={`/order-tracking/${order.SalesOrderID}`}
-                          className="order-track-btn"
-                        >
-                          Track Order
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-    </Container>
+                        {/* Actions */}
+                        <div className="oc-actions">
+                          <Link
+                            to={`/order-tracking/${order.SalesOrderID}`}
+                            className="oc-track-btn"
+                          >
+                            🚚 Track Order
+                          </Link>
+                          {order.DeliveryDate && (
+                            <span className="oc-delivery-info">
+                              📅{" "}
+                              {new Date(order.DeliveryDate).toLocaleDateString(
+                                "en-IN",
+                                { day: "numeric", month: "short" },
+                              )}
+                              {order.DeliveryTimeSlot &&
+                                ` · ${order.DeliveryTimeSlot}`}
+                            </span>
+                          )}
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+          </>
+        )}
+      </Container>
+    </div>
   );
 }

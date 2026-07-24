@@ -54,23 +54,23 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/orders"
+                  element={
+                    <ProtectedRoute>
+                      <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/order-tracking/:orderId"
+                  element={
+                    <ProtectedRoute>
+                      <OrderTracking />
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
-              <Route
-                path="/orders"
-                element={
-                  <ProtectedRoute>
-                    <Orders />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/order-tracking/:orderId"
-                element={
-                  <ProtectedRoute>
-                    <OrderTracking />
-                  </ProtectedRoute>
-                }
-              />
             </BrowserRouter>
           </CatalogProvider>
         </CartProvider>

@@ -241,51 +241,13 @@
 }
 
 .footer-bottom-inner {
-  max-width: 1600px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+  text-align: center;
 }
 
 .footer-bottom-inner p {
   color: var(--brand-blue);
   font-size: 0.85rem;
   margin: 0;
-}
-
-.payment-icons {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.pay-icon {
-  font-size: 0.78rem;
-  font-weight: 800;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-soft);
-  color: var(--text-muted);
-  letter-spacing: 0.3px;
-}
-
-.pay-icon.mastercard {
-  color: #eb001b;
-}
-.pay-icon.visa {
-  color: #1a1f71;
-}
-.pay-icon.paypal {
-  color: #003087;
-}
-.pay-icon.jcb {
-  color: #0f6937;
-}
-.pay-icon.skrill {
-  color: #862165;
 }
 
 /* ===== RESPONSIVE ===== */

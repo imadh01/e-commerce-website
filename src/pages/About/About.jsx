@@ -102,8 +102,8 @@ export default function About() {
         <p className="reveal-el">
           Should you have any clarifications regarding this Privacy Policy,
           please do not hesitate to contact us at{" "}
-          <a href="mailto:info@synergein.com" className="inline-link">
-            info@synergein.com
+          <a href="mailto:mamluk@mamluk.in" className="inline-link">
+            mamluk@mamluk.in
           </a>
           .
         </p>
@@ -222,8 +222,8 @@ export default function About() {
 
         <p className="reveal-el">
           <strong>For media enquiries please contact us at:</strong>{" "}
-          <a href="mailto:press@synergein.com" className="inline-link">
-            press@synergein.com
+          <a href="mailto:mamluk@mamluk.in" className="inline-link">
+            mamluk@mamluk.in
           </a>
           .
         </p>

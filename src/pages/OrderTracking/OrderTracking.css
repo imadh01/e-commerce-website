@@ -1,127 +1,303 @@
+/* ===== TRACKING PAGE ===== */
 .tracking-page {
   min-height: calc(100vh - 200px);
+  background: #f5f6fa;
 }
 
-.tracking-title {
-  font-weight: 800;
-  color: var(--brand-blue);
-  margin-bottom: 24px;
+/* ===== HERO ===== */
+.tracking-hero {
+  background: linear-gradient(135deg, var(--brand-blue) 0%, #0a3d6b 100%);
+  padding: 36px 0;
 }
 
-.tracking-card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(4, 41, 84, 0.04);
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.tracking-header {
+.tracking-hero-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-soft);
 }
 
-.tracking-order-id {
+.tracking-hero-title {
   font-weight: 800;
-  color: var(--brand-blue);
-  font-size: 1.1rem;
+  color: var(--white);
+  font-size: 1.6rem;
+  margin: 0;
 }
 
-.tracking-back {
-  color: var(--brand-orange);
-  font-weight: 600;
+.tracking-hero-sub {
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.9rem;
+  margin: 4px 0 0;
 }
 
-.tracking-back:hover {
+.tracking-back-link {
+  color: var(--brand-orange);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.tracking-back-link:hover {
   color: #d4750a;
 }
 
-.tracking-timeline {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0 20px;
+/* ===== CONTENT ===== */
+.tracking-content {
+  margin-top: -16px;
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
 }
 
-.tracking-step {
+/* ===== CARDS ===== */
+.tracking-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(4, 41, 84, 0.06);
+  overflow: hidden;
+}
+
+.tracking-section-title {
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 20px;
+  font-size: 1.05rem;
+}
+
+.tracking-action-btn {
+  background: var(--brand-orange) !important;
+  border: none !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  padding: 10px 28px;
+  border-radius: 10px;
+}
+
+.tracking-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+/* ===== LAYOUT ===== */
+.tracking-layout {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== DELIVERY PERSON ===== */
+.tracking-person-card {
+  border-left: 4px solid var(--brand-orange);
+}
+
+.tp-header {
+  display: flex;
   align-items: center;
-  position: relative;
+  gap: 14px;
+}
+
+.tp-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #fef3e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.tp-info {
   flex: 1;
 }
 
-.tracking-dot {
-  width: 28px;
-  height: 28px;
+.tp-name {
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-size: 1rem;
+}
+
+.tp-role {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.tp-call-btn {
+  background: var(--brand-blue);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 18px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.tp-call-btn:hover {
+  background: #0a3d6b;
+  color: var(--white);
+}
+
+/* ===== CURRENT STATUS ===== */
+.tracking-status-card {
+  border-left: 4px solid var(--brand-blue);
+}
+
+.ts-current {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.ts-current-icon {
+  font-size: 2.2rem;
+}
+
+.ts-current-status {
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-size: 1.2rem;
+}
+
+.ts-current-message {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 2px;
+}
+
+.ts-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f8f9fc;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.ts-location-icon {
+  font-size: 1rem;
+}
+
+/* ===== TIMELINE ===== */
+.tracking-timeline-v2 {
+  display: flex;
+  flex-direction: column;
+}
+
+.tl-entry {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.tl-dot-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.tl-dot {
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--border-soft);
   border: 3px solid var(--white);
   box-shadow: 0 0 0 2px var(--border-soft);
   z-index: 2;
-  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-.tracking-step.done .tracking-dot {
+.tl-active .tl-dot {
   background: var(--brand-orange);
-  box-shadow: 0 0 0 2px var(--brand-orange);
+  box-shadow:
+    0 0 0 2px var(--brand-orange),
+    0 0 0 6px rgba(237, 139, 0, 0.15);
+  width: 16px;
+  height: 16px;
 }
 
-.tracking-line {
-  position: absolute;
-  top: 13px;
-  left: 50%;
-  width: 100%;
-  height: 3px;
+.tl-connector {
+  width: 2px;
+  flex: 1;
   background: var(--border-soft);
-  z-index: 1;
+  min-height: 40px;
 }
 
-.tracking-step.done .tracking-line {
+.tl-active .tl-connector {
   background: var(--brand-orange);
 }
 
-.tracking-label {
-  margin-top: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-align: center;
+.tl-content {
+  padding-bottom: 24px;
+  flex: 1;
 }
 
-.tracking-step.done .tracking-label {
-  color: var(--brand-blue);
+.tl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tl-status {
   font-weight: 700;
+  color: var(--brand-blue);
+  font-size: 0.92rem;
 }
 
-@media (max-width: 576px) {
-  .tracking-timeline {
+.tl-active .tl-status {
+  color: var(--brand-orange);
+  font-size: 0.95rem;
+}
+
+.tl-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tl-message {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.tl-location {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 4px 0 0;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 767px) {
+  .tracking-hero-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0;
-    padding: 0;
+    gap: 10px;
   }
 
-  .tracking-step {
-    flex-direction: row;
-    gap: 16px;
-    padding: 12px 0;
+  .tracking-content {
+    max-width: 100%;
   }
 
-  .tracking-line {
-    position: absolute;
-    top: 28px;
-    left: 13px;
-    width: 3px;
-    height: 100%;
+  .tp-header {
+    flex-wrap: wrap;
   }
 
-  .tracking-label {
-    margin-top: 0;
+  .tp-call-btn {
+    width: 100%;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .tl-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 }

@@ -267,14 +267,10 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <div className="footer-bottom-inner">
-            <p>&copy; Copyright {year} Synergein. All rights reserved.</p>
-            <div className="payment-icons">
-              <span className="pay-icon mastercard">mastercard</span>
-              <span className="pay-icon visa">VISA</span>
-              <span className="pay-icon paypal">PayPal</span>
-              <span className="pay-icon jcb">JCB</span>
-              <span className="pay-icon skrill">Skrill</span>
-            </div>
+            <p>
+              © Copyright {new Date().getFullYear()} Mamluk. All rights
+              reserved.
+            </p>
           </div>
         </div>
       </footer>

@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import "./Header.css";
 import { useAuth } from "../../context/AuthContext";
+import { Modal, Button } from "react-bootstrap";
+import "./Header.css";
+
+// Inside the component:
+const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
 // The 6 real pages, matching our router paths in App.jsx.
 const navItems = [
@@ -113,12 +117,12 @@ export default function Header() {
             {isLoggedIn ? (
               <div className="user-menu">
                 <Link to="/profile" className="user-name-link">
-                  {user.CustomerName?.split(" ")[0] || user.PrimaryMobile}
+                  Profile
                 </Link>
                 <button
                   type="button"
                   className="signin-btn"
-                  onClick={logout}
+                  onClick={() => setShowLogoutConfirm(true)}
                   title="Sign out"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -202,6 +206,39 @@ export default function Header() {
           ))}
         </div>
       </nav>
+      <Modal
+        show={showLogoutConfirm}
+        onHide={() => setShowLogoutConfirm(false)}
+        centered
+        size="sm"
+      >
+        <Modal.Body className="text-center py-4">
+          <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>👋</div>
+          <h5 className="fw-bold mb-2" style={{ color: "var(--brand-blue)" }}>
+            Sign out?
+          </h5>
+          <p className="text-muted small mb-4">
+            Are you sure you want to log out?
+          </p>
+          <div className="d-flex gap-2 justify-content-center">
+            <Button
+              variant="outline-secondary"
+              onClick={() => setShowLogoutConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                logout();
+                setShowLogoutConfirm(false);
+              }}
+            >
+              Yes, Logout
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </header>
   );
 }

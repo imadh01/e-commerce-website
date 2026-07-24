@@ -16,7 +16,11 @@ import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { useLocationMaster } from "../../hooks/useLocationMaster";
 import { getDiscountPercent } from "../../utils/pricing";
-import { getDeliverySlots, getTimeSlots } from "../../utils/deliverySlots";
+import {
+  getDeliverySlots,
+  getTimeSlots,
+  getDefaultDeliveryDateTime,
+} from "../../utils/deliverySlots";
 import { placeOrder } from "../../utils/orderService";
 import "./Checkout.css";
 
@@ -89,8 +93,9 @@ export default function Checkout() {
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(null);
   const [couponError, setCouponError] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState("");
-  const [deliveryTime, setDeliveryTime] = useState("");
+  const defaults = getDefaultDeliveryDateTime();
+  const [deliveryDate, setDeliveryDate] = useState(defaults.date);
+  const [deliveryTime, setDeliveryTime] = useState(defaults.time);
   const [paymentMode, setPaymentMode] = useState("Cash");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -248,8 +253,8 @@ export default function Checkout() {
       errors.address = "Please select a delivery address";
     }
 
-    if (!deliveryDate) errors.deliveryDate = "Select a delivery date";
-    if (!deliveryTime) errors.deliveryTime = "Select a delivery time";
+    // if (!deliveryDate) errors.deliveryDate = "Select a delivery date";
+    // if (!deliveryTime) errors.deliveryTime = "Select a delivery time";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -791,23 +796,19 @@ export default function Checkout() {
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label className="checkout-label">
-                      Time Slot *
+                      Time Slot
                     </Form.Label>
                     <Form.Select
                       value={deliveryTime}
                       onChange={(e) => setDeliveryTime(e.target.value)}
-                      isInvalid={!!formErrors.deliveryTime}
                     >
                       <option value="">Select time slot</option>
-                      {timeSlots.map((t) => (
+                      {getTimeSlots(deliveryDate).map((t) => (
                         <option key={t.value} value={t.value}>
                           {t.label}
                         </option>
                       ))}
                     </Form.Select>
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.deliveryTime}
-                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
               </Row>
@@ -898,12 +899,12 @@ export default function Checkout() {
                 </Form.Select>
               </Form.Group>
 
-              {paymentMode !== "Cash" && (
+              {/* {paymentMode !== "Cash" && (
                 <Alert variant="warning" className="mt-3 mb-0 small">
                   ⚠️ Online payment gateway coming soon. Your order will be
                   placed as Cash on Delivery for now.
                 </Alert>
-              )}
+              )} */}
             </Card.Body>
           </Card>
         </Col>

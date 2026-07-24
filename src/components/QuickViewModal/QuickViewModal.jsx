@@ -63,7 +63,7 @@ export default function QuickViewModal({
       className="quick-view-modal"
     >
       <Modal.Header closeButton>
-        <Modal.Title className="quick-view-title">Quick View</Modal.Title>
+        <Modal.Title className="quick-view-title"> </Modal.Title>
       </Modal.Header>
 
       <Modal.Body>

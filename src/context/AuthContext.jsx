@@ -182,6 +182,10 @@ export function AuthProvider({ children }) {
     }
     setUser(null);
     resetAuthFlow();
+    // Clear cart on logout
+    localStorage.removeItem("synergein_cart_v1");
+    // Force page reload so CartContext picks up empty cart
+    window.location.href = "/";
   }, []);
 
   function resetAuthFlow() {
@@ -197,6 +201,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user,
+    setUser,
     isLoggedIn,
     isRegistered,
     isLoading,

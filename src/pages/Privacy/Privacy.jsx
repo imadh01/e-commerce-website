@@ -236,8 +236,8 @@ export default function Privacy() {
               receive any such request by email or telephone, please do not
               respond/divulge any sensitive data or information and forward the
               information relating to the same to{" "}
-              <a href="mailto:info@synergein.com" className="inline-link">
-                info@synergein.com
+              <a href="mailto:mamluk@mamluk.in" className="inline-link">
+                mamluk@mamluk.in
               </a>
               for necessary action.
             </p>

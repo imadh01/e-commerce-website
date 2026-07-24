@@ -316,11 +316,7 @@ export default function Contact() {
             </div>
             <div>
               <h3>Send Mail</h3>
-              <p>
-                support@synergein.com
-                <br />
-                hire.us@synergein.io
-              </p>
+              <p>mamluk@mamluk.in</p>
             </div>
           </div>
         </div>

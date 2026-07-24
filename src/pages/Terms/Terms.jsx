@@ -115,8 +115,8 @@ export default function Terms() {
         <p className="reveal-el">
           Should you have any clarifications regarding this Privacy Policy,
           please do not hesitate to contact us at{" "}
-          <a href="mailto:info@synergein.com" className="inline-link">
-            info@synergein.com
+          <a href="mailto:mamluk@mamluk.in" className="inline-link">
+            mamluk@mamluk.in
           </a>
           .
         </p>
@@ -195,9 +195,9 @@ export default function Terms() {
           request by email or telephone, please do not respond/divulge any
           sensitive data or information and forward the information relating to
           the same to{" "}
-          <a href="mailto:info@synergein.com" className="inline-link">
-            info@synergein.com
-          </a>{" "}
+          <a href="mailto:mamluk@mamluk.in" className="inline-link">
+            mamluk@mamluk.in
+          </a>
           for necessary action.
         </p>
 
