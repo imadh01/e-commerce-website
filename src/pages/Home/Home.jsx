@@ -515,7 +515,7 @@ export default function Home() {
         onHide={() => setShowAuthPrompt(false)}
       />
       <ToastContainer
-        position="bottom-end"
+        position="top-end"
         className="p-3"
         style={{ zIndex: 1100 }}
       >

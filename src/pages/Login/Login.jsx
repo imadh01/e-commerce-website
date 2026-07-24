@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
+import { RecaptchaVerifier } from "firebase/auth";
+import { getFirebaseAuth } from "../../config/firebase";
 import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import "./Login.css";
@@ -25,8 +27,52 @@ export default function Login() {
 
   const redirectTo = location.state?.from || "/";
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isLoggedIn, navigate, redirectTo]);
+
+  // Initialize RecaptchaVerifier on mount
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+
+    // Clear any existing instance
+    if (window.recaptchaVerifier) {
+      try {
+        window.recaptchaVerifier.clear();
+      } catch {
+        /* ignore */
+      }
+      window.recaptchaVerifier = null;
+    }
+
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: () => {
+          // reCAPTCHA solved
+        },
+      },
+    );
+
+    // Cleanup on unmount
+    return () => {
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch {
+          /* ignore */
+        }
+        window.recaptchaVerifier = null;
+      }
+    };
+  }, []);
+
   if (isLoggedIn) {
-    navigate(redirectTo, { replace: true });
     return null;
   }
 
@@ -79,7 +125,7 @@ export default function Login() {
             <div className="login-left-content">
               <img
                 src="/synergein-logo.jpg"
-                alt="Mamluk"
+                alt="Synergein"
                 className="login-brand-logo"
               />
               <h2 className="login-left-title">
@@ -110,7 +156,6 @@ export default function Login() {
 
           {/* ===== RIGHT: FORM ===== */}
           <div className="login-right">
-            {/* Step indicator */}
             <div className="login-steps">
               <div
                 className={`login-step ${authStep === "phone" ? "active" : "done"}`}
@@ -255,7 +300,8 @@ export default function Login() {
               </>
             )}
 
-            <div id="recaptcha-container" />
+            {/* reCAPTCHA container */}
+            <div id="recaptcha-container"></div>
           </div>
         </div>
       </Container>

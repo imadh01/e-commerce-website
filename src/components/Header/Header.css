@@ -215,7 +215,7 @@
 .nav-link.active-page::after {
   transform: translateX(-50%) scaleX(1);
 }
-
+/* user menu */
 .user-menu {
   display: flex;
   align-items: center;
@@ -231,7 +231,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.user-name-link {
+  font-weight: 700;
+  color: var(--brand-blue);
+  font-size: 0.9rem;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
+.user-name-link:hover {
+  color: var(--brand-orange);
+}
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .header-top-inner {

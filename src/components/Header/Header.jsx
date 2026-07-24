@@ -112,9 +112,9 @@ export default function Header() {
 
             {isLoggedIn ? (
               <div className="user-menu">
-                <span className="user-name">
+                <Link to="/profile" className="user-name-link">
                   {user.CustomerName?.split(" ")[0] || user.PrimaryMobile}
-                </span>
+                </Link>
                 <button
                   type="button"
                   className="signin-btn"

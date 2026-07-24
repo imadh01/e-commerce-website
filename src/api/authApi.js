@@ -3,8 +3,8 @@ import api from "./axiosClient";
 // Check if customer exists in Laravel DB (called after OTP verified)
 export async function fetchCustomerByPhone(mobile) {
   try {
-    const response = await api.post("/userDetails", {
-      PrimaryMobile: mobile,
+    const response = await api.get("/userdetails", {
+      params: { PrimaryMobile: mobile },
     });
 
     if (!response.data.status) {
@@ -23,7 +23,7 @@ export async function fetchCustomerByPhone(mobile) {
 
 // Called at checkout — creates customer if new, updates if existing
 export async function upsertCustomer(data) {
-  const response = await api.post("/updateUserDetails", data);
+  const response = await api.post("/userdetails", data);
 
   if (!response.data.status) {
     throw new Error(response.data.message || "Failed to save customer details");

@@ -1,0 +1,155 @@
+.orders-page {
+  min-height: calc(100vh - 200px);
+}
+
+.orders-title {
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 24px;
+}
+
+.orders-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.orders-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.orders-empty h3 {
+  font-weight: 700;
+  color: var(--brand-blue);
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(4, 41, 84, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 16px rgba(4, 41, 84, 0.08);
+}
+
+.order-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.order-number {
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-size: 1.05rem;
+  margin-right: 16px;
+}
+
+.order-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.order-status-badge {
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  font-weight: 700;
+}
+
+.order-items-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.order-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-item-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--darkText);
+}
+
+.order-item-qty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  min-width: 30px;
+}
+
+.order-item-price {
+  font-weight: 700;
+  color: var(--brand-blue);
+  font-size: 0.9rem;
+  min-width: 80px;
+  text-align: right;
+}
+
+.order-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.order-total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.order-total-amount {
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-size: 1.15rem;
+}
+
+.order-track-btn {
+  background: var(--brand-orange);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.order-track-btn:hover {
+  background: #d4750a;
+  color: var(--white);
+}
+
+@media (max-width: 767px) {
+  .order-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .order-card-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .order-track-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

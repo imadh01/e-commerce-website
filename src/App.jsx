@@ -15,6 +15,10 @@ import Checkout from "./pages/Checkout/Checkout";
 import OrderSuccess from "./pages/OrderSuccess/OrderSuccess";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login/Login";
+import Profile from "./pages/Profile/Profile";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import Orders from "./pages/Orders/Orders";
+import OrderTracking from "./pages/OrderTracking/OrderTracking";
 
 // Route map — every page lives inside <Layout /> so Header/Footer render
 // once and only the matched page's content swaps out underneath them.
@@ -42,7 +46,31 @@ export default function App() {
                     element={<OrderSuccess />}
                   />
                 </Route>
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <Orders />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/order-tracking/:orderId"
+                element={
+                  <ProtectedRoute>
+                    <OrderTracking />
+                  </ProtectedRoute>
+                }
+              />
             </BrowserRouter>
           </CatalogProvider>
         </CartProvider>

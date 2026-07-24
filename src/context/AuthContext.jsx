@@ -5,11 +5,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  signOut,
-} from "firebase/auth";
+import { signInWithPhoneNumber, signOut } from "firebase/auth";
 import { getFirebaseAuth } from "../config/firebase";
 import { fetchCustomerByPhone, upsertCustomer } from "../api/authApi";
 
@@ -29,13 +25,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(loadStoredUser);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
-  const [authStep, setAuthStep] = useState("phone"); // "phone" | "otp"
+  const [authStep, setAuthStep] = useState("phone");
   const [authPhone, setAuthPhone] = useState("");
 
   const isLoggedIn = !!user;
-  // User exists in DB (has UserID from backend) vs just phone-verified
   const isRegistered = !!user?.UserID;
 
+  // Persist user to localStorage
   useEffect(() => {
     try {
       if (user) {
@@ -48,52 +44,25 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  // Step 1: Send OTP
+  // Step 1: Send OTP — uses window.recaptchaVerifier created by Login.jsx
   const sendOtp = useCallback(async (phoneNumber) => {
     setIsLoading(true);
     try {
-      const auth = getFirebaseAuth();
+      const appVerifier = window.recaptchaVerifier;
 
-      // Always clear previous reCAPTCHA before creating a new one
-      if (window.recaptchaVerifier) {
-        try {
-          window.recaptchaVerifier.clear();
-        } catch {
-          /* ignore */
-        }
-        window.recaptchaVerifier = null;
+      if (!appVerifier) {
+        throw new Error("reCAPTCHA not initialized. Please refresh the page.");
       }
-
-      // Clear the container's innerHTML too — prevents "already rendered" error
-      const container = document.getElementById("recaptcha-container");
-      if (container) container.innerHTML = "";
-
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: () => {
-            // reCAPTCHA solved
-          },
-          "expired-callback": () => {
-            // Reset on expiry
-            window.recaptchaVerifier = null;
-          },
-        },
-      );
-
-      // Explicitly render before calling signInWithPhoneNumber
-      await window.recaptchaVerifier.render();
 
       const formattedPhone = phoneNumber.startsWith("+")
         ? phoneNumber
         : `+91${phoneNumber}`;
 
+      const auth = getFirebaseAuth();
       const result = await signInWithPhoneNumber(
         auth,
         formattedPhone,
-        window.recaptchaVerifier,
+        appVerifier,
       );
 
       setConfirmationResult(result);
@@ -104,17 +73,18 @@ export function AuthProvider({ children }) {
       console.error("OTP send failed:", err);
       console.error("Error code:", err.code);
 
-      // Clean up on failure
+      // Reset reCAPTCHA on failure
       if (window.recaptchaVerifier) {
         try {
-          window.recaptchaVerifier.clear();
+          window.recaptchaVerifier.render().then((widgetId) => {
+            if (window.grecaptcha) {
+              window.grecaptcha.reset(widgetId);
+            }
+          });
         } catch {
           /* ignore */
         }
-        window.recaptchaVerifier = null;
       }
-      const container = document.getElementById("recaptcha-container");
-      if (container) container.innerHTML = "";
 
       throw new Error(
         err.code === "auth/too-many-requests"
@@ -128,7 +98,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Step 2: Verify OTP → check if customer exists in DB
+  // Step 2: Verify OTP
   const verifyOtp = useCallback(
     async (otp) => {
       if (!confirmationResult) {
@@ -139,21 +109,16 @@ export function AuthProvider({ children }) {
       try {
         await confirmationResult.confirm(otp);
 
-        // OTP verified — check Laravel DB
         const customer = await fetchCustomerByPhone(authPhone);
 
         if (customer) {
-          // Existing customer — full user object
           setUser(customer);
         } else {
-          // New user — phone-only session, no DB record yet.
-          // They can browse and add to cart. Customer record is
-          // created at checkout via /updateUserDetails.
           setUser({
             PrimaryMobile: authPhone,
             CustomerName: "",
             Addresses: [],
-            _isNew: true, // flag so checkout knows to collect details
+            _isNew: true,
           });
         }
 
@@ -172,7 +137,7 @@ export function AuthProvider({ children }) {
     [confirmationResult, authPhone],
   );
 
-  // Called at checkout — creates or updates customer in DB
+  // Save customer details at checkout
   const saveCustomerDetails = useCallback(
     async (data) => {
       setIsLoading(true);
@@ -187,7 +152,6 @@ export function AuthProvider({ children }) {
           CustomerType: data.CustomerType || "Retail",
           BranchID: user?.BranchID || 1,
           IsActive: 1,
-          // Address fields
           AddressLine1: data.AddressLine1,
           AddressLine2: data.AddressLine2 || "",
           Landmark: data.Landmark || "",
@@ -200,7 +164,6 @@ export function AuthProvider({ children }) {
           AddressType: data.AddressType || "Home",
         });
 
-        // Update local user with the full data from backend
         setUser(updatedCustomer);
         return updatedCustomer;
       } finally {
@@ -214,7 +177,9 @@ export function AuthProvider({ children }) {
     try {
       const auth = getFirebaseAuth();
       await signOut(auth);
-    } catch {}
+    } catch {
+      /* ignore */
+    }
     setUser(null);
     resetAuthFlow();
   }, []);
@@ -223,10 +188,6 @@ export function AuthProvider({ children }) {
     setConfirmationResult(null);
     setAuthStep("phone");
     setAuthPhone("");
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-      window.recaptchaVerifier = null;
-    }
   }
 
   const defaultAddress =

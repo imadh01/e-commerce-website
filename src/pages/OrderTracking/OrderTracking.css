@@ -1,0 +1,127 @@
+.tracking-page {
+  min-height: calc(100vh - 200px);
+}
+
+.tracking-title {
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 24px;
+}
+
+.tracking-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(4, 41, 84, 0.04);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.tracking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.tracking-order-id {
+  font-weight: 800;
+  color: var(--brand-blue);
+  font-size: 1.1rem;
+}
+
+.tracking-back {
+  color: var(--brand-orange);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.tracking-back:hover {
+  color: #d4750a;
+}
+
+.tracking-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 20px;
+}
+
+.tracking-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.tracking-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--border-soft);
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--border-soft);
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.tracking-step.done .tracking-dot {
+  background: var(--brand-orange);
+  box-shadow: 0 0 0 2px var(--brand-orange);
+}
+
+.tracking-line {
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background: var(--border-soft);
+  z-index: 1;
+}
+
+.tracking-step.done .tracking-line {
+  background: var(--brand-orange);
+}
+
+.tracking-label {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.tracking-step.done .tracking-label {
+  color: var(--brand-blue);
+  font-weight: 700;
+}
+
+@media (max-width: 576px) {
+  .tracking-timeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 0;
+  }
+
+  .tracking-step {
+    flex-direction: row;
+    gap: 16px;
+    padding: 12px 0;
+  }
+
+  .tracking-line {
+    position: absolute;
+    top: 28px;
+    left: 13px;
+    width: 3px;
+    height: 100%;
+  }
+
+  .tracking-label {
+    margin-top: 0;
+  }
+}

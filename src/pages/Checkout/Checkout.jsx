@@ -14,6 +14,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { useLocationMaster } from "../../hooks/useLocationMaster";
 import { getDiscountPercent } from "../../utils/pricing";
 import { getDeliverySlots, getTimeSlots } from "../../utils/deliverySlots";
 import { placeOrder } from "../../utils/orderService";
@@ -25,6 +26,15 @@ export default function Checkout() {
   const { cartItems, clearCart } = useCart();
   const { user, isRegistered, saveCustomerDetails } = useAuth();
   const entries = Object.entries(cartItems);
+
+  const {
+    isLoading: locationsLoading,
+    getCountries,
+    getStates,
+    getDistricts,
+    getTaluks,
+    getLocalities,
+  } = useLocationMaster();
 
   // Redirect if cart is empty
   if (entries.length === 0) {
@@ -55,17 +65,24 @@ export default function Checkout() {
   );
 
   const [customerName, setCustomerName] = useState(user?.CustomerName || "");
+
   const [address, setAddress] = useState({
     addressType: "Home",
     addressLine1: "",
     addressLine2: "",
     landmark: "",
-    locality: "",
-    taluk: "",
-    district: "",
-    state: "",
+    countryId: 1,
+    stateId: "",
+    districtId: "",
+    talukId: "",
+    localityId: "",
     country: "India",
+    state: "",
+    district: "",
+    taluk: "",
+    locality: "",
     postalCode: "",
+    isDefault: false,
   });
 
   const [deliveryInstruction, setDeliveryInstruction] = useState("");
@@ -74,7 +91,7 @@ export default function Checkout() {
   const [couponError, setCouponError] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [deliveryTime, setDeliveryTime] = useState("");
-  const [paymentMode, setPaymentMode] = useState("COD");
+  const [paymentMode, setPaymentMode] = useState("Cash");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
@@ -98,9 +115,72 @@ export default function Checkout() {
   const couponDiscount = couponApplied ? couponApplied.discount : 0;
   const finalTotal = totals.subtotal - couponDiscount;
 
-  // ===== HANDLERS =====
+  // ===== ADDRESS CHANGE HANDLER (cascading resets) =====
   function handleAddressChange(field, value) {
-    setAddress((prev) => ({ ...prev, [field]: value }));
+    setAddress((prev) => {
+      const next = { ...prev, [field]: value };
+
+      if (field === "countryId") {
+        const country = getCountries().find((c) => c.id === parseInt(value));
+        next.country = country?.name || "";
+        next.stateId = "";
+        next.state = "";
+        next.districtId = "";
+        next.district = "";
+        next.talukId = "";
+        next.taluk = "";
+        next.localityId = "";
+        next.locality = "";
+        next.postalCode = "";
+      }
+
+      if (field === "stateId") {
+        const state = getStates(prev.countryId).find(
+          (s) => s.id === parseInt(value),
+        );
+        next.state = state?.name || "";
+        next.districtId = "";
+        next.district = "";
+        next.talukId = "";
+        next.taluk = "";
+        next.localityId = "";
+        next.locality = "";
+        next.postalCode = "";
+      }
+
+      if (field === "districtId") {
+        const district = getDistricts(prev.stateId).find(
+          (d) => d.id === parseInt(value),
+        );
+        next.district = district?.name || "";
+        next.talukId = "";
+        next.taluk = "";
+        next.localityId = "";
+        next.locality = "";
+        next.postalCode = "";
+      }
+
+      if (field === "talukId") {
+        const taluk = getTaluks(prev.districtId).find(
+          (t) => String(t.id) === String(value),
+        );
+        next.taluk = taluk?.name || "";
+        next.localityId = "";
+        next.locality = "";
+        next.postalCode = "";
+      }
+
+      if (field === "localityId") {
+        const locality = getLocalities(prev.talukId).find(
+          (l) => l.id === parseInt(value),
+        );
+        next.locality = locality?.name || "";
+        next.postalCode = locality?.postal_code || "";
+      }
+
+      return next;
+    });
+
     if (formErrors[field]) {
       setFormErrors((prev) => {
         const next = { ...prev };
@@ -120,6 +200,7 @@ export default function Checkout() {
     setShowNewAddressForm(true);
   }
 
+  // ===== COUPON =====
   function handleApplyCoupon() {
     setCouponError("");
     const code = couponCode.trim().toUpperCase();
@@ -149,6 +230,7 @@ export default function Checkout() {
     setCouponError("");
   }
 
+  // ===== VALIDATION =====
   function validate() {
     const errors = {};
 
@@ -159,13 +241,9 @@ export default function Checkout() {
     if (showNewAddressForm || savedAddresses.length === 0) {
       if (!address.addressLine1.trim())
         errors.addressLine1 = "Address is required";
-      if (!address.locality.trim()) errors.locality = "Locality is required";
-      if (!address.district.trim()) errors.district = "District is required";
-      if (!address.state.trim()) errors.state = "State is required";
-      if (!address.postalCode.trim())
-        errors.postalCode = "Postal code is required";
-      else if (!/^\d{6}$/.test(address.postalCode.trim()))
-        errors.postalCode = "Enter a valid 6-digit postal code";
+      if (!address.stateId) errors.state = "State is required";
+      if (!address.districtId) errors.district = "District is required";
+      if (!address.localityId) errors.locality = "Locality is required";
     } else if (!selectedAddressId) {
       errors.address = "Please select a delivery address";
     }
@@ -177,6 +255,7 @@ export default function Checkout() {
     return Object.keys(errors).length === 0;
   }
 
+  // ===== PLACE ORDER =====
   async function handlePlaceOrder() {
     if (!validate()) {
       const firstErrorField = document.querySelector(".is-invalid");
@@ -267,6 +346,7 @@ export default function Checkout() {
     }
   }
 
+  // ===== RENDER =====
   return (
     <Container className="checkout-page py-4">
       <h1 className="checkout-title">Checkout</h1>
@@ -310,7 +390,7 @@ export default function Checkout() {
             </Card>
           )}
 
-          {/* Delivery Address */}
+          {/* ===== DELIVERY ADDRESS ===== */}
           <Card className="checkout-card">
             <Card.Body>
               <h5 className="checkout-section-title">
@@ -394,175 +474,269 @@ export default function Checkout() {
                 </>
               )}
 
-              {/* Address form (new users or "Add New" clicked) */}
+              {/* New address form */}
               {(showNewAddressForm || savedAddresses.length === 0) && (
                 <div className={savedAddresses.length > 0 ? "mt-4" : ""}>
-                  <Row className="g-3">
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Address Type
-                        </Form.Label>
-                        <Form.Select
-                          value={address.addressType}
-                          onChange={(e) =>
-                            handleAddressChange("addressType", e.target.value)
-                          }
-                        >
-                          <option value="Home">Home</option>
-                          <option value="Office">Office</option>
-                          <option value="Other">Other</option>
-                        </Form.Select>
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Postal Code *
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="600001"
-                          value={address.postalCode}
-                          onChange={(e) =>
-                            handleAddressChange("postalCode", e.target.value)
-                          }
-                          isInvalid={!!formErrors.postalCode}
-                          maxLength={6}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formErrors.postalCode}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col xs={12}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Address Line 1 *
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="House/Flat No., Building, Street"
-                          value={address.addressLine1}
-                          onChange={(e) =>
-                            handleAddressChange("addressLine1", e.target.value)
-                          }
-                          isInvalid={!!formErrors.addressLine1}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formErrors.addressLine1}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col xs={12}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Address Line 2
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Floor, Wing (optional)"
-                          value={address.addressLine2}
-                          onChange={(e) =>
-                            handleAddressChange("addressLine2", e.target.value)
-                          }
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Landmark
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Near bus stop"
-                          value={address.landmark}
-                          onChange={(e) =>
-                            handleAddressChange("landmark", e.target.value)
-                          }
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Locality *
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Anna Nagar"
-                          value={address.locality}
-                          onChange={(e) =>
-                            handleAddressChange("locality", e.target.value)
-                          }
-                          isInvalid={!!formErrors.locality}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formErrors.locality}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col md={4}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          Taluk
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Taluk"
-                          value={address.taluk}
-                          onChange={(e) =>
-                            handleAddressChange("taluk", e.target.value)
-                          }
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={4}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          District *
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Chennai"
-                          value={address.district}
-                          onChange={(e) =>
-                            handleAddressChange("district", e.target.value)
-                          }
-                          isInvalid={!!formErrors.district}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formErrors.district}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col md={4}>
-                      <Form.Group>
-                        <Form.Label className="checkout-label">
-                          State *
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Tamil Nadu"
-                          value={address.state}
-                          onChange={(e) =>
-                            handleAddressChange("state", e.target.value)
-                          }
-                          isInvalid={!!formErrors.state}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formErrors.state}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                  </Row>
+                  {locationsLoading ? (
+                    <div className="text-center py-4">
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Loading locations...
+                    </div>
+                  ) : (
+                    <Row className="g-3">
+                      {/* Address Type */}
+                      <Col xs={12}>
+                        <div className="address-type-selector">
+                          {["Home", "Work", "Other"].map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              className={`address-type-btn ${
+                                address.addressType === type ? "active" : ""
+                              }`}
+                              onClick={() =>
+                                handleAddressChange("addressType", type)
+                              }
+                            >
+                              {type}
+                            </button>
+                          ))}
+                        </div>
+                      </Col>
+
+                      {/* Address Line 1 */}
+                      <Col xs={12}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Address Line 1 *
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            placeholder="House/Flat No., Building, Street"
+                            value={address.addressLine1}
+                            onChange={(e) =>
+                              handleAddressChange(
+                                "addressLine1",
+                                e.target.value,
+                              )
+                            }
+                            isInvalid={!!formErrors.addressLine1}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {formErrors.addressLine1}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+
+                      {/* Address Line 2 */}
+                      <Col xs={12}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Address Line 2
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            placeholder="Floor, Wing (optional)"
+                            value={address.addressLine2}
+                            onChange={(e) =>
+                              handleAddressChange(
+                                "addressLine2",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </Form.Group>
+                      </Col>
+
+                      {/* Landmark */}
+                      <Col xs={12}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Landmark
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            placeholder="Near bus stop, temple, etc."
+                            value={address.landmark}
+                            onChange={(e) =>
+                              handleAddressChange("landmark", e.target.value)
+                            }
+                          />
+                        </Form.Group>
+                      </Col>
+
+                      {/* Country */}
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Country
+                          </Form.Label>
+                          <Form.Select
+                            value={address.countryId}
+                            onChange={(e) =>
+                              handleAddressChange("countryId", e.target.value)
+                            }
+                          >
+                            <option value="">Select Country</option>
+                            {getCountries().map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+
+                      {/* State */}
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            State *
+                          </Form.Label>
+                          <Form.Select
+                            value={address.stateId}
+                            onChange={(e) =>
+                              handleAddressChange("stateId", e.target.value)
+                            }
+                            isInvalid={!!formErrors.state}
+                            disabled={!address.countryId}
+                          >
+                            <option value="">Select State</option>
+                            {getStates(address.countryId).map((s) => (
+                              <option key={s.id} value={s.id}>
+                                {s.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">
+                            {formErrors.state}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+
+                      {/* District */}
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            District *
+                          </Form.Label>
+                          <Form.Select
+                            value={address.districtId}
+                            onChange={(e) =>
+                              handleAddressChange("districtId", e.target.value)
+                            }
+                            isInvalid={!!formErrors.district}
+                            disabled={!address.stateId}
+                          >
+                            <option value="">Select District</option>
+                            {getDistricts(address.stateId).map((d) => (
+                              <option key={d.id} value={d.id}>
+                                {d.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">
+                            {formErrors.district}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+
+                      {/* Taluk */}
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Taluk
+                          </Form.Label>
+                          <Form.Select
+                            value={address.talukId}
+                            onChange={(e) => {
+                              console.log("TALUK SELECTED:", e.target.value);
+                              handleAddressChange("talukId", e.target.value);
+                            }}
+                            disabled={!address.districtId}
+                          >
+                            <option value="">Select Taluk</option>
+                            {getTaluks(address.districtId).map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+
+                      {/* Locality */}
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Locality *
+                          </Form.Label>
+                          <Form.Select
+                            value={address.localityId}
+                            onChange={(e) =>
+                              handleAddressChange("localityId", e.target.value)
+                            }
+                            isInvalid={!!formErrors.locality}
+                            disabled={!address.talukId}
+                          >
+                            <option value="">Select Locality</option>
+                            {getLocalities(address.talukId).map((l) => (
+                              <option key={l.id} value={l.id}>
+                                {l.name}
+                              </option>
+                            ))}
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">
+                            {formErrors.locality}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+
+                      {/* Postal Code (auto-filled) */}
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label className="checkout-label">
+                            Postal Code
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={address.postalCode}
+                            onChange={(e) =>
+                              handleAddressChange("postalCode", e.target.value)
+                            }
+                            placeholder="Enter postal code"
+                            maxLength={6}
+                          />
+                        </Form.Group>
+                      </Col>
+
+                      {/* Default address toggle */}
+                      {savedAddresses.length > 0 && (
+                        <Col xs={12}>
+                          <div className="default-address-toggle">
+                            <span>Make this address default</span>
+                            <Form.Check
+                              type="switch"
+                              id="default-address-switch"
+                              checked={address.isDefault}
+                              onChange={(e) =>
+                                handleAddressChange(
+                                  "isDefault",
+                                  e.target.checked,
+                                )
+                              }
+                            />
+                          </div>
+                        </Col>
+                      )}
+                    </Row>
+                  )}
                 </div>
               )}
             </Card.Body>
           </Card>
 
-          {/* Delivery Instructions */}
+          {/* ===== DELIVERY INSTRUCTIONS ===== */}
           <Card className="checkout-card">
             <Card.Body>
               <h5 className="checkout-section-title">
@@ -579,7 +753,7 @@ export default function Checkout() {
             </Card.Body>
           </Card>
 
-          {/* Scheduled Delivery */}
+          {/* ===== SCHEDULED DELIVERY ===== */}
           <Card className="checkout-card">
             <Card.Body>
               <h5 className="checkout-section-title">
@@ -640,7 +814,7 @@ export default function Checkout() {
             </Card.Body>
           </Card>
 
-          {/* Coupon Code */}
+          {/* ===== COUPON CODE ===== */}
           <Card className="checkout-card">
             <Card.Body>
               <h5 className="checkout-section-title">
@@ -699,7 +873,7 @@ export default function Checkout() {
             </Card.Body>
           </Card>
 
-          {/* Payment Method */}
+          {/* ===== PAYMENT METHOD ===== */}
           <Card className="checkout-card">
             <Card.Body>
               <h5 className="checkout-section-title">
@@ -707,39 +881,24 @@ export default function Checkout() {
                 Payment Method
               </h5>
 
-              <div className="payment-options">
-                {[
-                  { value: "COD", label: "Cash on Delivery", icon: "💵" },
-                  { value: "Card", label: "Credit / Debit Card", icon: "💳" },
-                  { value: "UPI", label: "UPI", icon: "📱" },
-                ].map((method) => (
-                  <div
-                    key={method.value}
-                    className={`payment-option ${
-                      paymentMode === method.value ? "active" : ""
-                    }`}
-                    onClick={() => setPaymentMode(method.value)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setPaymentMode(method.value);
-                      }
-                    }}
-                  >
-                    <span className="payment-icon">{method.icon}</span>
-                    <span className="payment-label">{method.label}</span>
-                    <div
-                      className={`payment-radio ${
-                        paymentMode === method.value ? "checked" : ""
-                      }`}
-                    />
-                  </div>
-                ))}
-              </div>
+              <Form.Group>
+                <Form.Label className="checkout-label">
+                  Select Payment Method *
+                </Form.Label>
+                <Form.Select
+                  value={paymentMode}
+                  onChange={(e) => setPaymentMode(e.target.value)}
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="Debit Card">Debit Card</option>
+                  <option value="UPI">UPI</option>
+                </Form.Select>
+              </Form.Group>
 
-              {paymentMode !== "COD" && (
+              {paymentMode !== "Cash" && (
                 <Alert variant="warning" className="mt-3 mb-0 small">
                   ⚠️ Online payment gateway coming soon. Your order will be
                   placed as Cash on Delivery for now.
@@ -754,6 +913,7 @@ export default function Checkout() {
           <Card className="checkout-summary-card">
             <h5 className="checkout-summary-title">Billing Summary</h5>
 
+            {/* Items preview */}
             <div className="checkout-items-preview">
               {entries.map(([id, item]) => {
                 const price = parseFloat(item.price);
@@ -812,7 +972,7 @@ export default function Checkout() {
             <hr />
 
             <div className="checkout-summary-row checkout-final-total">
-              <span>Total</span>
+              <span>Grand Total</span>
               <span>₹{finalTotal.toFixed(2)}</span>
             </div>
 
@@ -823,7 +983,6 @@ export default function Checkout() {
             )}
 
             <Button
-              variant="dark"
               size="lg"
               className="w-100 mt-3 checkout-place-btn"
               onClick={handlePlaceOrder}

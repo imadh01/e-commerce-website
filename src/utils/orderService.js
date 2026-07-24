@@ -1,8 +1,8 @@
 import api from "../api/axiosClient";
 
 // Transform frontend cart + form data into the shape the backend expects
+
 function buildOrderPayload(data) {
-  // Combine date + time into "2026-07-22 10:00 11:00" format
   const dateTime =
     data.deliveryDate && data.deliveryTime
       ? `${data.deliveryDate} ${data.deliveryTime.replace("-", " ")}`
@@ -41,24 +41,16 @@ function buildOrderPayload(data) {
 
 export async function placeOrder(data) {
   const payload = buildOrderPayload(data);
+  console.log("ORDER PAYLOAD:", JSON.stringify(payload, null, 2));
 
-  const response = await api.post("/createSalesOrder", payload);
+  // Backend dev needs to make this POST — won't work as GET with body
+  const response = await api.post("/salesorder", payload);
 
   if (!response.data.status) {
     throw new Error(response.data.message || "Failed to place order");
   }
 
   return response.data.data;
-
-  // ===== MOCK (use while backend is unavailable) =====
-  // const payload = buildOrderPayload(data);
-  // console.log("Order payload:", payload);
-  // await new Promise((r) => setTimeout(r, 800));
-  // return {
-  //   SalesOrderID: Date.now(),
-  //   OrderNumber: `O-${1000 + Math.floor(Math.random() * 9000)}`,
-  //   GrandTotal: "405.00",
-  // };
 }
 
 export function getOrders() {

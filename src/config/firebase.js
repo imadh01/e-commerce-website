@@ -8,10 +8,9 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Don't initialize immediately. Only when someone actually
-// needs Firebase (i.e. the login page).
 let app = null;
 let auth = null;
 
@@ -19,6 +18,14 @@ export function getFirebaseAuth() {
   if (!auth) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+
+    // Disable reCAPTCHA on localhost for development
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
+      auth.settings.appVerificationDisabledForTesting = true;
+    }
   }
   return auth;
 }

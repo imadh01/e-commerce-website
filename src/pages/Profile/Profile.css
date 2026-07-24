@@ -1,0 +1,238 @@
+.profile-page {
+  min-height: calc(100vh - 200px);
+}
+
+.profile-title {
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin-bottom: 24px;
+}
+
+.profile-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(4, 41, 84, 0.04);
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.profile-section-title {
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.address-count {
+  background: var(--brand-orange);
+  color: var(--white);
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-label {
+  font-weight: 600;
+  color: var(--brand-blue);
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+
+/* ===== VIEW MODE ===== */
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.profile-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-detail-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--brand-blue);
+}
+
+/* ===== ADDRESSES ===== */
+.no-addresses {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.addresses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.address-card {
+  padding: 16px 18px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.address-card:hover {
+  border-color: var(--brand-blue);
+}
+
+.address-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.address-text {
+  font-size: 0.9rem;
+  margin: 0 0 4px;
+  line-height: 1.5;
+}
+
+/* ===== ADDRESS TYPE SELECTOR ===== */
+.address-type-selector {
+  display: flex;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border-soft);
+}
+
+.address-type-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: var(--white);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.address-type-btn:not(:last-child) {
+  border-right: 1.5px solid var(--border-soft);
+}
+
+.address-type-btn.active {
+  background: var(--brand-blue);
+  color: var(--white);
+}
+
+.address-type-btn:hover:not(.active) {
+  background: var(--bg-gray);
+}
+
+/* ===== DEFAULT TOGGLE ===== */
+.default-address-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-soft);
+  margin-top: 8px;
+  font-weight: 600;
+  color: var(--brand-blue);
+  font-size: 0.95rem;
+}
+
+.default-address-toggle .form-check-input:checked {
+  background-color: var(--brand-orange);
+  border-color: var(--brand-orange);
+}
+
+/* ===== QUICK LINKS ===== */
+.profile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.profile-link:hover {
+  border-color: var(--brand-blue);
+  background: #f0f4f8;
+  text-decoration: none;
+}
+
+.profile-link-icon {
+  font-size: 1.3rem;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-gray);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-link-title {
+  font-weight: 700;
+  color: var(--brand-blue);
+  font-size: 0.92rem;
+}
+
+.profile-link-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ===== SAVE BUTTON ===== */
+.profile-save-btn {
+  background: var(--brand-orange) !important;
+  border: none !important;
+  font-weight: 700;
+}
+
+.profile-save-btn:hover {
+  background: #d4750a !important;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 767px) {
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .address-type-btn {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+}
