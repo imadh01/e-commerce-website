@@ -1,22 +1,28 @@
-import { createContext, useContext, useReducer, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 
 const CartContext = createContext(null);
 
-// cartItems shape changed:
-//   OLD: { [id]: quantity }
-//   NEW: { [id]: { quantity, name, image, price, mrp, code } }
-// The snapshot fields are what we saw at add-time. Real e-commerce
-// stores the price you paid, not today's price — same principle.
+// cartItems shape:
+//   { [id]: { quantity, name, image, price, mrp, code, _isFreeOffer?, _offerId? } }
+// Free offer items have _isFreeOffer: true, price: 0, and _offerId linking
+// them to the SundayDiscount configuration that granted them.
 
 const STORAGE_KEY = "synergein_cart_v1";
 
 function loadInitialState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem("mamluk_cart_v1");
     if (!raw) return { cartItems: {} };
     return { cartItems: JSON.parse(raw) };
   } catch {
-    // Corrupt localStorage / private mode — start fresh, don't crash.
     return { cartItems: {} };
   }
 }
@@ -46,7 +52,9 @@ function cartReducer(state, action) {
     case "SET_QUANTITY": {
       const { productId, quantity } = action.payload;
       const existing = state.cartItems[productId];
-      if (!existing) return state; // nothing to update
+      if (!existing) return state;
+      // Don't let users change qty of free offer items
+      if (existing._isFreeOffer) return state;
       if (quantity <= 0) {
         const { [productId]: _removed, ...rest } = state.cartItems;
         return { ...state, cartItems: rest };
@@ -61,12 +69,49 @@ function cartReducer(state, action) {
     }
 
     case "REMOVE_FROM_CART": {
+      const existing = state.cartItems[action.payload.productId];
+      // Don't let users manually remove free offer items
+      if (existing?._isFreeOffer) return state;
       const { [action.payload.productId]: _removed, ...rest } = state.cartItems;
       return { ...state, cartItems: rest };
     }
 
     case "CLEAR_CART":
       return { ...state, cartItems: {} };
+
+    // Batch-add free offer items for a qualifying offer
+    case "ADD_FREE_OFFER_ITEMS": {
+      const { offerId, items } = action.payload;
+      const newItems = { ...state.cartItems };
+      items.forEach((item) => {
+        const key = `free_${offerId}_${item.id}`;
+        if (!newItems[key]) {
+          newItems[key] = {
+            quantity: 1,
+            name: item.name,
+            image: item.image,
+            price: 0,
+            mrp: item.mrp || 0,
+            code: "",
+            _isFreeOffer: true,
+            _offerId: offerId,
+          };
+        }
+      });
+      return { ...state, cartItems: newItems };
+    }
+
+    // Remove all free items belonging to a specific offer
+    case "REMOVE_FREE_OFFER_ITEMS": {
+      const oid = action.payload.offerId;
+      const filtered = {};
+      for (const [key, val] of Object.entries(state.cartItems)) {
+        if (!(val._isFreeOffer && val._offerId === oid)) {
+          filtered[key] = val;
+        }
+      }
+      return { ...state, cartItems: filtered };
+    }
 
     default:
       return state;
@@ -80,9 +125,12 @@ export function CartProvider({ children }) {
     loadInitialState,
   );
 
-  // Persist to localStorage on every change. useEffect runs after render,
-  // so we're not blocking the UI. If storage is unavailable (Safari
-  // private mode has quirks), fail silently — the app still works.
+  // Offer configurations from the Sunday offer API
+  const [offerConfigs, setOfferConfigs] = useState([]);
+  // Track which offers are currently applied so we don't re-dispatch
+  const appliedOffersRef = useRef(new Set());
+
+  // Persist to localStorage on every change
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cartItems));
@@ -90,6 +138,66 @@ export function CartProvider({ children }) {
       /* ignore */
     }
   }, [state.cartItems]);
+
+  // Compute cart subtotal from PAID items only (exclude free offer items)
+  const paidSubtotal = Object.values(state.cartItems).reduce((sum, entry) => {
+    if (entry._isFreeOffer) return sum;
+    return sum + parseFloat(entry.price || 0) * entry.quantity;
+  }, 0);
+
+  // Auto-add/remove free items — only the HIGHEST qualifying offer applies.
+  // Display only — these items won't be sent to the order API.
+  useEffect(() => {
+    if (offerConfigs.length === 0) return;
+
+    // Sort configs by condition_value descending so we pick the highest first
+    const sorted = [...offerConfigs].sort(
+      (a, b) =>
+        parseFloat(b.condition_value || 0) - parseFloat(a.condition_value || 0),
+    );
+
+    // Find the highest offer the subtotal qualifies for
+    const bestOffer = sorted.find(
+      (c) =>
+        paidSubtotal >= parseFloat(c.condition_value || 0) &&
+        c.offeritems &&
+        c.offeritems.length > 0,
+    );
+
+    const currentApplied = appliedOffersRef.current;
+    const bestId = bestOffer?.offer_id || null;
+
+    // Remove any previously applied offers that aren't the best one
+    for (const appliedId of [...currentApplied]) {
+      if (appliedId !== bestId) {
+        dispatch({
+          type: "REMOVE_FREE_OFFER_ITEMS",
+          payload: { offerId: appliedId },
+        });
+        currentApplied.delete(appliedId);
+      }
+    }
+
+    // Add the best offer if not already applied
+    if (bestId && !currentApplied.has(bestId)) {
+      dispatch({
+        type: "ADD_FREE_OFFER_ITEMS",
+        payload: { offerId: bestId, items: bestOffer.offeritems },
+      });
+      currentApplied.add(bestId);
+    }
+
+    // If subtotal dropped below all thresholds, remove everything
+    if (!bestOffer) {
+      for (const appliedId of [...currentApplied]) {
+        dispatch({
+          type: "REMOVE_FREE_OFFER_ITEMS",
+          payload: { offerId: appliedId },
+        });
+        currentApplied.delete(appliedId);
+      }
+    }
+  }, [paidSubtotal, offerConfigs]);
 
   const cartCount = Object.values(state.cartItems).reduce(
     (sum, entry) => sum + entry.quantity,
@@ -99,7 +207,7 @@ export function CartProvider({ children }) {
   const value = {
     cartItems: state.cartItems,
     cartCount,
-    // Note: addToCart now takes the whole product object, not just an id.
+    paidSubtotal,
     addToCart: (product, quantity = 1) =>
       dispatch({ type: "ADD_TO_CART", payload: { product, quantity } }),
     setQuantity: (productId, quantity) =>
@@ -107,6 +215,8 @@ export function CartProvider({ children }) {
     removeFromCart: (productId) =>
       dispatch({ type: "REMOVE_FROM_CART", payload: { productId } }),
     clearCart: () => dispatch({ type: "CLEAR_CART" }),
+    // Called from Home page after fetching offer configs
+    setOfferConfigs,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

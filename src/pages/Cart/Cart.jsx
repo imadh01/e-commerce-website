@@ -116,13 +116,19 @@ export default function Cart() {
             </div>
 
             {entries.map(([id, item]) => {
-              const price = parseFloat(item.price);
+              const isFree = !!item._isFreeOffer;
+              const price = isFree ? 0 : parseFloat(item.price);
               const mrp = item.mrp ? parseFloat(item.mrp) : null;
-              const pct = getDiscountPercent(item.price, item.mrp);
+              const pct = isFree
+                ? null
+                : getDiscountPercent(item.price, item.mrp);
               const lineTotal = price * item.quantity;
 
               return (
-                <div key={id} className="cart-item-row">
+                <div
+                  key={id}
+                  className={`cart-item-row${isFree ? " cart-item-free" : ""}`}
+                >
                   <div className="col-product">
                     <img
                       src={item.image}
@@ -136,51 +142,83 @@ export default function Cart() {
                           Code: {item.code}
                         </div>
                       )}
-                      {pct && (
+                      {isFree ? (
+                        <span className="cart-free-badge">🎁 FREE</span>
+                      ) : pct ? (
                         <span className="cart-item-discount">{pct}% OFF</span>
-                      )}
+                      ) : null}
                     </div>
                   </div>
 
                   <div className="col-price">
-                    <div className="cart-price">₹{price.toFixed(2)}</div>
-                    {mrp && mrp > price && (
-                      <div className="cart-mrp">₹{mrp.toFixed(2)}</div>
+                    {isFree ? (
+                      <>
+                        <div
+                          className="cart-price"
+                          style={{ color: "#059669" }}
+                        >
+                          FREE
+                        </div>
+                        {mrp && (
+                          <div className="cart-mrp">₹{mrp.toFixed(2)}</div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="cart-price">₹{price.toFixed(2)}</div>
+                        {mrp && mrp > price && (
+                          <div className="cart-mrp">₹{mrp.toFixed(2)}</div>
+                        )}
+                      </>
                     )}
                   </div>
 
                   <div className="col-qty">
-                    <div className="cart-qty-control">
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(id, item.quantity - 1)}
-                        aria-label="Decrease quantity"
-                      >
-                        −
-                      </button>
-                      <span>{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(id, item.quantity + 1)}
-                        aria-label="Increase quantity"
-                      >
-                        +
-                      </button>
-                    </div>
+                    {isFree ? (
+                      <span className="cart-free-qty">{item.quantity}</span>
+                    ) : (
+                      <div className="cart-qty-control">
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(id, item.quantity - 1)}
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <span>{item.quantity}</span>
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(id, item.quantity + 1)}
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="col-total">₹{lineTotal.toFixed(2)}</div>
+                  <div className="col-total">
+                    {isFree ? (
+                      <span style={{ color: "#059669", fontWeight: 700 }}>
+                        ₹0.00
+                      </span>
+                    ) : (
+                      `₹${lineTotal.toFixed(2)}`
+                    )}
+                  </div>
 
                   <div className="col-remove">
-                    <button
-                      type="button"
-                      className="cart-remove-btn"
-                      onClick={() => removeFromCart(id)}
-                      aria-label={`Remove ${item.name}`}
-                      title="Remove"
-                    >
-                      ✕
-                    </button>
+                    {!isFree && (
+                      <button
+                        type="button"
+                        className="cart-remove-btn"
+                        onClick={() => removeFromCart(id)}
+                        aria-label={`Remove ${item.name}`}
+                        title="Remove"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 </div>
               );

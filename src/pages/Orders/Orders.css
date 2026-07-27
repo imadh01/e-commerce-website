@@ -266,6 +266,20 @@
   color: var(--text-muted);
   font-weight: 600;
 }
+.oc-view-btn {
+  background: var(--brand-blue);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 18px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.oc-view-btn:hover {
+  background: #0a3d6b;
+  color: var(--white);
+}
 
 /* ===== MOBILE ===== */
 @media (max-width: 767px) {

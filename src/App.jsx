@@ -19,6 +19,7 @@ import Profile from "./pages/Profile/Profile";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Orders from "./pages/Orders/Orders";
 import OrderTracking from "./pages/OrderTracking/OrderTracking";
+import OrderDetails from "./pages/OrderDetails/OrderDetails";
 
 // Route map — every page lives inside <Layout /> so Header/Footer render
 // once and only the matched page's content swaps out underneath them.
@@ -59,6 +60,14 @@ export default function App() {
                   element={
                     <ProtectedRoute>
                       <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/order-details/:orderId"
+                  element={
+                    <ProtectedRoute>
+                      <OrderDetails />
                     </ProtectedRoute>
                   }
                 />

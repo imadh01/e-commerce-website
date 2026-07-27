@@ -14,18 +14,26 @@ const firebaseConfig = {
 let app = null;
 let auth = null;
 
+// export function getFirebaseAuth() {
+//   if (!auth) {
+//     app = initializeApp(firebaseConfig);
+//     auth = getAuth(app);
+
+//     // Disable reCAPTCHA on localhost for development
+//     if (
+//       window.location.hostname === "localhost" ||
+//       window.location.hostname === "127.0.0.1"
+//     ) {
+//       auth.settings.appVerificationDisabledForTesting = true;
+//     }
+//   }
+//   return auth;
+// }
 export function getFirebaseAuth() {
   if (!auth) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
-
-    // Disable reCAPTCHA on localhost for development
-    if (
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
-    ) {
-      auth.settings.appVerificationDisabledForTesting = true;
-    }
   }
+
   return auth;
 }

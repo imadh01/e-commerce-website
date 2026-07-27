@@ -30,7 +30,7 @@ export default function Profile() {
     getLocalities,
   } = useLocationMaster();
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(!user?.CustomerName);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
   const [profile, setProfile] = useState({
@@ -467,7 +467,12 @@ export default function Profile() {
                       <span className="profile-info-label">Full Name</span>
                       <span className="profile-info-value">
                         {user.CustomerName || "—"}
-                        {user.FamilyName ? ` ${user.FamilyName}` : ""}
+                      </span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Family Name</span>
+                      <span className="profile-info-value">
+                        {user.FamilyName || "—"}
                       </span>
                     </div>
                     <div className="profile-info-item">
@@ -642,12 +647,13 @@ export default function Profile() {
                 </div>
               </Card.Body>
             </Card>
+
             <Card className="profile-card mt-4">
               <Card.Body className="p-4">
                 <h5 className="profile-section-title mb-3">Account Info</h5>
                 <div className="account-info-item">
                   <span className="text-muted">Signed in as</span>
-                  <strong>+91 {user.PrimaryMobile}</strong>
+                  <strong>{user.CustomerName || user.PrimaryMobile}</strong>
                 </div>
                 {user.CustomerType && (
                   <div className="account-info-item">

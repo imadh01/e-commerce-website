@@ -3,39 +3,31 @@ import api from "../api/axiosClient";
 // Transform frontend cart + form data into the shape the backend expects
 
 function buildOrderPayload(data) {
-  const dateTime =
-    data.deliveryDate && data.deliveryTime
-      ? `${data.deliveryDate} ${data.deliveryTime.replace("-", " ")}`
-      : null;
-
   return {
     Address: {
-      AddressID: data.addressId || null,
-      AddressType: data.addressType || "Home",
-      AddressLine1: data.addressLine1,
-      AddressLine2: data.addressLine2 || "",
-      Landmark: data.landmark || "",
-      Locality: data.locality || "",
-      Taluk: data.taluk || "",
-      District: data.district || "",
-      State: data.state || "",
-      Country: data.country || "India",
-      PostalCode: data.postalCode || "",
-      GeoLocation: data.geoLocation || null,
+      AddressID: data.Address?.AddressID || null,
+      AddressType: data.Address?.AddressType || "Home",
+      AddressLine1: data.Address?.AddressLine1 || "",
+      AddressLine2: data.Address?.AddressLine2 || "",
+      Landmark: data.Address?.Landmark || "",
+      Locality: data.Address?.Locality || "",
+      Taluk: data.Address?.Taluk || "",
+      District: data.Address?.District || "",
+      State: data.Address?.State || "",
+      Country: data.Address?.Country || "India",
+      PostalCode: data.Address?.PostalCode || "",
+      GeoLocation: data.Address?.GeoLocation || null,
     },
-    Product: data.items.map((item) => ({
-      product: {
-        id: item.productId,
-        price: parseFloat(item.price),
-        discount: parseFloat(item.discount || 0),
-        mrp: parseFloat(item.mrp || item.price),
-      },
-      qty: item.quantity,
-    })),
-    PaymentMode: data.paymentMode,
-    DateTime: dateTime,
-    DeliveryInstruction: data.deliveryInstruction || "",
-    Voucher: data.voucherDiscount || 0,
+
+    Product: data.Product,
+
+    PaymentMode: data.PaymentMode,
+
+    DateTime: data.DateTime,
+
+    DeliveryInstruction: data.DeliveryInstruction || "",
+
+    Voucher: data.Voucher || 0,
   };
 }
 

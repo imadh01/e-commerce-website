@@ -180,11 +180,12 @@ export function AuthProvider({ children }) {
     } catch {
       /* ignore */
     }
+    // Clear all user data
     setUser(null);
     resetAuthFlow();
-    // Clear cart on logout
     localStorage.removeItem("synergein_cart_v1");
-    // Force page reload so CartContext picks up empty cart
+    localStorage.removeItem("synergein_auth_v1");
+    // Hard reload to reset all contexts
     window.location.href = "/";
   }, []);
 

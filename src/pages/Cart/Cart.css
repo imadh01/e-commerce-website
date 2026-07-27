@@ -264,3 +264,26 @@
     margin-top: -60px;
   }
 }
+
+/* ===== FREE OFFER ITEMS ===== */
+.cart-item-free {
+  background: #f0fdf4;
+  border-left: 3px solid #059669;
+}
+
+.cart-free-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #059669;
+  background: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.cart-free-qty {
+  font-weight: 700;
+  color: var(--brand-blue);
+  font-size: 0.95rem;
+}

@@ -157,7 +157,6 @@ export default function Orders() {
             <Row className="g-4">
               {orders.map((order) => {
                 const sc = getStatusConfig(order.Status);
-                const itemCount = order.Items?.length || 0;
                 const orderDate = new Date(order.OrderDate).toLocaleDateString(
                   "en-IN",
                   {
@@ -166,15 +165,23 @@ export default function Orders() {
                     year: "numeric",
                   },
                 );
+                const orderTime = order.OrderTime
+                  ? new Date(
+                      `2000-01-01T${order.OrderTime}`,
+                    ).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })
+                  : "";
 
                 return (
-                  <Col md={6} key={order.SalesOrderID}>
+                  <Col md={6} lg={4} key={order.SalesOrderID}>
                     <Card
                       className="order-card-v2"
                       style={{ borderTop: `4px solid ${sc.color}` }}
                     >
                       <Card.Body className="p-0">
-                        {/* Header */}
                         <div
                           className="oc-header"
                           style={{ background: sc.bgLight }}
@@ -185,7 +192,10 @@ export default function Orders() {
                               <div className="oc-order-number">
                                 {order.OrderNumber}
                               </div>
-                              <div className="oc-order-date">{orderDate}</div>
+                              <div className="oc-order-date">
+                                {orderDate}
+                                {orderTime && ` · ${orderTime}`}
+                              </div>
                             </div>
                           </div>
                           <Badge bg={sc.bg} className="oc-status-badge">
@@ -193,49 +203,9 @@ export default function Orders() {
                           </Badge>
                         </div>
 
-                        {/* Items */}
-                        <div className="oc-body">
-                          {order.Items &&
-                            order.Items.slice(0, 3).map((item) => (
-                              <div
-                                key={item.SalesOrderItemID}
-                                className="oc-item"
-                              >
-                                <div className="oc-item-left">
-                                  <span className="oc-item-name">
-                                    {item.ItemName}
-                                  </span>
-                                  {item.ItemCode && (
-                                    <span className="oc-item-code">
-                                      {item.ItemCode}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="oc-item-right">
-                                  <span className="oc-item-qty">
-                                    ×{item.Quantity}
-                                  </span>
-                                  <span className="oc-item-price">
-                                    ₹{parseFloat(item.LineTotal).toFixed(2)}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          {itemCount > 3 && (
-                            <div className="oc-more-items">
-                              +{itemCount - 3} more item
-                              {itemCount - 3 > 1 ? "s" : ""}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Footer */}
                         <div className="oc-footer">
                           <div className="oc-total">
-                            <span className="oc-total-label">
-                              {itemCount} item{itemCount !== 1 ? "s" : ""} ·
-                              Total
-                            </span>
+                            <span className="oc-total-label">Total</span>
                             <span className="oc-total-amount">
                               ₹{parseFloat(order.TotalAmount).toFixed(2)}
                             </span>
@@ -247,25 +217,20 @@ export default function Orders() {
                           )}
                         </div>
 
-                        {/* Actions */}
                         <div className="oc-actions">
+                          <Link
+                            to={`/order-details/${order.SalesOrderID}`}
+                            state={{ order }}
+                            className="oc-view-btn"
+                          >
+                            View Details
+                          </Link>
                           <Link
                             to={`/order-tracking/${order.SalesOrderID}`}
                             className="oc-track-btn"
                           >
-                            🚚 Track Order
+                            🚚 Track
                           </Link>
-                          {order.DeliveryDate && (
-                            <span className="oc-delivery-info">
-                              📅{" "}
-                              {new Date(order.DeliveryDate).toLocaleDateString(
-                                "en-IN",
-                                { day: "numeric", month: "short" },
-                              )}
-                              {order.DeliveryTimeSlot &&
-                                ` · ${order.DeliveryTimeSlot}`}
-                            </span>
-                          )}
                         </div>
                       </Card.Body>
                     </Card>

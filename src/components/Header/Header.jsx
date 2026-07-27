@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation, useSearchParams } from "react-router-dom";
+import { Dropdown, Modal, Button } from "react-bootstrap";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
-import { Modal, Button } from "react-bootstrap";
 import "./Header.css";
 
 // The 6 real pages, matching our router paths in App.jsx.
@@ -113,45 +113,91 @@ export default function Header() {
             </Link>
 
             {isLoggedIn ? (
-              <div className="user-menu">
-                <Link to="/profile" className="user-name-link">
-                  Profile
-                </Link>
-                <button
-                  type="button"
-                  className="signin-btn"
-                  onClick={() => setShowLogoutConfirm(true)}
-                  title="Sign out"
+              <>
+                <Dropdown align="end" className="profile-dropdown">
+                  <Dropdown.Toggle
+                    as="button"
+                    className="profile-dropdown-toggle"
+                  >
+                    <div className="profile-dropdown-avatar">
+                      {(user.CustomerName || "U").charAt(0).toUpperCase()}
+                    </div>
+                    <span className="profile-dropdown-name">
+                      {user.CustomerName?.split(" ")[0] || "Profile"}
+                    </span>
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu className="profile-dropdown-menu">
+                    <Dropdown.Item
+                      as={Link}
+                      to="/profile"
+                      className="profile-dropdown-item"
+                    >
+                      👤 My Profile
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as={Link}
+                      to="/orders"
+                      className="profile-dropdown-item"
+                    >
+                      📦 My Orders
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      as={Link}
+                      to="/order-tracking/0"
+                      className="profile-dropdown-item"
+                    >
+                      🚚 Track Order
+                    </Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item
+                      onClick={() => setShowLogoutConfirm(true)}
+                      className="profile-dropdown-item profile-dropdown-logout"
+                    >
+                      🚪 Logout
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+
+                <Modal
+                  show={showLogoutConfirm}
+                  onHide={() => setShowLogoutConfirm(false)}
+                  centered
+                  size="sm"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <polyline
-                      points="16 17 21 12 16 7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <line
-                      x1="21"
-                      y1="12"
-                      x2="9"
-                      y2="12"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="action-label">Logout</span>
-                </button>
-              </div>
+                  <Modal.Body className="text-center py-4">
+                    <div style={{ fontSize: "2.5rem", marginBottom: "12px" }}>
+                      👋
+                    </div>
+                    <h5
+                      className="fw-bold mb-2"
+                      style={{ color: "var(--brand-blue)" }}
+                    >
+                      Sign out?
+                    </h5>
+                    <p className="text-muted small mb-4">
+                      Are you sure you want to log out?
+                    </p>
+                    <div className="d-flex gap-2 justify-content-center">
+                      <Button
+                        variant="outline-secondary"
+                        onClick={() => setShowLogoutConfirm(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="danger"
+                        onClick={() => {
+                          logout();
+                          setShowLogoutConfirm(false);
+                        }}
+                      >
+                        Yes, Logout
+                      </Button>
+                    </div>
+                  </Modal.Body>
+                </Modal>
+              </>
             ) : (
               <Link to="/login" className="signin-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

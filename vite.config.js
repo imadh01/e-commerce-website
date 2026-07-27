@@ -13,6 +13,12 @@ export default defineConfig({
         cookieDomainRewrite: "localhost",
         secure: false,
       },
+      "/sundayoffer": {
+        target: "https://mamluktest.synergeinsolutions.com",
+        changeOrigin: true,
+        cookieDomainRewrite: "localhost",
+        secure: false,
+      },
     },
   },
 });

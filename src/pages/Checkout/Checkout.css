@@ -335,3 +335,21 @@
     font-size: 0.85rem;
   }
 }
+
+/* ===== FREE OFFER ITEMS IN CHECKOUT ===== */
+.checkout-free-divider {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #059669;
+  background: #f0fdf4;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+  text-align: center;
+}
+
+.checkout-item-free {
+  background: #f0fdf4;
+  border-radius: 8px;
+  padding: 8px !important;
+}

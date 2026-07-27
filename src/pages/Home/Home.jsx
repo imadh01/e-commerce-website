@@ -11,10 +11,15 @@ import {
   ListGroup,
   Form,
   InputGroup,
+  Modal,
 } from "react-bootstrap";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { useCart } from "../../context/CartContext";
-import { fetchCatalog } from "./homeApi";
+import {
+  fetchCatalog,
+  fetchSundayOffers,
+  fetchSundayOfferConfig,
+} from "./homeApi";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Home.css";
 import { Toast, ToastContainer } from "react-bootstrap";
@@ -27,7 +32,8 @@ import AuthPromptModal from "../../components/AuthPromptModal/AuthPromptModal";
 
 export default function Home() {
   usePageTitle("Home");
-  const { addToCart, cartItems, setQuantity } = useCart();
+  const { addToCart, cartItems, setQuantity, setOfferConfigs } = useCart();
+  const { user, isLoggedIn } = useAuth();
   const {
     categories,
     subcategories,
@@ -35,11 +41,6 @@ export default function Home() {
     isLoading,
     error,
   } = useCatalog();
-  //   const [categories, setCategories] = useState([]);
-  //   const [subcategories, setSubcategories] = useState([]);
-  //   const [items, setItems] = useState([]);
-  //   const [isLoading, setIsLoading] = useState(true);
-  //   const [error, setError] = useState(null);
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSubcategory, setActiveSubcategory] = useState(null);
@@ -52,37 +53,59 @@ export default function Home() {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
 
-  //   useEffect(() => {
-  //     let isCancelled = false;
+  // ===== SUNDAY OFFERS STATE =====
+  const [sundayOffers, setSundayOffers] = useState(null);
+  const [offersLoading, setOffersLoading] = useState(true);
+  const [offerConfigsLocal, setOfferConfigsLocal] = useState([]);
+  const [activeOffer, setActiveOffer] = useState(null);
 
-  //     async function loadCatalog() {
-  //       try {
-  //         setIsLoading(true);
-  //         setError(null);
-  //         const data = await fetchCatalog();
+  useEffect(() => {
+    let cancelled = false;
+    async function loadOffers() {
+      try {
+        const data = await fetchSundayOffers();
+        if (!cancelled) setSundayOffers(data);
+      } catch (err) {
+        console.error("Sunday offers fetch error:", err);
+      } finally {
+        if (!cancelled) setOffersLoading(false);
+      }
+    }
+    loadOffers();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  //         if (!isCancelled) {
-  //           setCategories(data.categories || []);
-  //           setSubcategories(data.subcategories || []);
-  //           setItems(data.products || []);
-  //         }
-  //       } catch (err) {
-  //         if (!isCancelled) {
-  //           setError("Failed to load products. Please try again later.");
-  //           console.error("Catalog fetch error:", err);
-  //         }
-  //       } finally {
-  //         if (!isCancelled) {
-  //           setIsLoading(false);
-  //         }
-  //       }
-  //     }
+  // Fetch offer configurations when user is logged in
+  useEffect(() => {
+    if (!user?.UserID) return;
+    let cancelled = false;
+    async function loadConfigs() {
+      try {
+        const data = await fetchSundayOfferConfig(user.UserID);
+        if (!cancelled) {
+          const configs = data.configurations || [];
+          setOfferConfigsLocal(configs);
+          setOfferConfigs(configs);
+        }
+      } catch (err) {
+        console.error("Offer config fetch error:", err);
+      }
+    }
+    loadConfigs();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.UserID]);
 
-  //     loadCatalog();
-  //     return () => {
-  //       isCancelled = true;
-  //     };
-  //   }, []);
+  function handleBannerClick(index) {
+    if (offerConfigsLocal.length > 0) {
+      // Match banner index to config, or show first config
+      const config = offerConfigsLocal[index] || offerConfigsLocal[0];
+      setActiveOffer(config);
+    }
+  }
 
   // Deduplicate + price filter
   const uniqueItems = items.reduce((acc, item) => {
@@ -203,7 +226,6 @@ export default function Home() {
     });
   }
 
-  const { isLoggedIn } = useAuth();
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   function handleCardAddToCart(item) {
     if (!isLoggedIn) {
@@ -232,6 +254,13 @@ export default function Home() {
       setSearchParams({}, { replace: true });
     }
   }
+
+  // Determine if we have offer data to show
+  const hasOfferBanners = sundayOffers?.weekend_offers?.length > 0;
+  const hasOfferProducts = sundayOffers?.offer_products?.length > 0;
+  const showOffersSection =
+    !offersLoading && (hasOfferBanners || hasOfferProducts);
+  const offerLabel = sundayOffers?.offer_label || "Sunday Offers";
 
   return (
     <div className="home-page">
@@ -279,6 +308,199 @@ export default function Home() {
           </InputGroup>
         </div>
       </section>
+
+      {/* ===== SUNDAY OFFERS BANNERS ===== */}
+      {showOffersSection && hasOfferBanners && (
+        <section className="sunday-offers-section">
+          <Container fluid className="px-4">
+            <div className="so-header">
+              <h2 className="so-title">
+                <span className="so-icon">🔥</span>
+                {offerLabel}
+              </h2>
+            </div>
+            <div className="so-banners-wrap">
+              <div className="so-banners">
+                {sundayOffers.weekend_offers.map((offer, idx) => (
+                  <div
+                    className="so-banner-card"
+                    key={idx}
+                    onClick={() => handleBannerClick(idx)}
+                    role="button"
+                    style={{
+                      cursor:
+                        offerConfigsLocal.length > 0 ? "pointer" : "default",
+                    }}
+                  >
+                    <img
+                      src={offer.image}
+                      alt={`Offer ${idx + 1}`}
+                      className="so-banner-img"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* ===== FEATURES BAR ===== */}
+      <section className="features-bar">
+        <Container fluid className="px-4">
+          <Row xs={1} sm={2} lg={4} className="g-3">
+            <Col>
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-orange">🏷️</div>
+                <div>
+                  <div className="feature-title">Best Prices & Offers</div>
+                  <div className="feature-desc">
+                    Affordable prices on all products
+                  </div>
+                </div>
+              </div>
+            </Col>
+            <Col>
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-blue">🚚</div>
+                <div>
+                  <div className="feature-title">Fast Delivery</div>
+                  <div className="feature-desc">
+                    Quick delivery right to your door
+                  </div>
+                </div>
+              </div>
+            </Col>
+            <Col>
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-green">✅</div>
+                <div>
+                  <div className="feature-title">Quality Assured</div>
+                  <div className="feature-desc">
+                    Genuine products, always fresh
+                  </div>
+                </div>
+              </div>
+            </Col>
+            <Col>
+              <div className="feature-card">
+                <div className="feature-icon feature-icon-purple">⭐</div>
+                <div>
+                  <div className="feature-title">Share & Earn</div>
+                  <div className="feature-desc">
+                    Refer friends & get rewards
+                  </div>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      {/* ===== OFFER PRODUCTS (horizontal scroll) ===== */}
+      {showOffersSection && hasOfferProducts && (
+        <section className="offer-products-section">
+          <Container fluid className="px-4">
+            <h2 className="op-heading">Offer Products</h2>
+            <div className="op-track">
+              {sundayOffers.offer_products.map((product) => {
+                const discountNum =
+                  product.mrp && product.mrp > product.price
+                    ? Math.round(
+                        ((product.mrp - product.price) / product.mrp) * 100,
+                      )
+                    : null;
+
+                return (
+                  <div className="op-card" key={product.id}>
+                    <div className="op-img-wrap">
+                      {discountNum && (
+                        <span className="product-discount-badge">
+                          {discountNum}% OFF
+                        </span>
+                      )}
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="op-img"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="op-info">
+                      <div className="product-name">{product.name}</div>
+                      <div className="product-price mb-1">
+                        ₹{parseFloat(product.price).toFixed(2)}
+                        {product.mrp &&
+                          parseFloat(product.mrp) >
+                            parseFloat(product.price) && (
+                            <span
+                              className="text-muted text-decoration-line-through ms-2"
+                              style={{ fontSize: "0.9rem" }}
+                            >
+                              ₹{parseFloat(product.mrp).toFixed(2)}
+                            </span>
+                          )}
+                      </div>
+
+                      {isLoggedIn && cartItems[product.id]?.quantity > 0 ? (
+                        <div className="product-qty-control mt-auto">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setQuantity(
+                                product.id,
+                                cartItems[product.id].quantity - 1,
+                              )
+                            }
+                          >
+                            −
+                          </button>
+                          <span>{cartItems[product.id].quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              addToCart(
+                                {
+                                  id: product.id,
+                                  name: product.name,
+                                  price: product.price,
+                                  mrp: product.mrp,
+                                  image: product.image,
+                                },
+                                1,
+                              )
+                            }
+                          >
+                            +
+                          </button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="dark"
+                          size="sm"
+                          className="mt-auto add-to-cart-btn w-100"
+                          onClick={() =>
+                            handleCardAddToCart({
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              mrp: product.mrp,
+                              image: product.image,
+                            })
+                          }
+                        >
+                          Add to Cart
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Container>
+        </section>
+      )}
 
       {/* ===== SHOP LAYOUT ===== */}
       <Container fluid className="shop-layout px-4">
@@ -514,8 +736,83 @@ export default function Home() {
         show={showAuthPrompt}
         onHide={() => setShowAuthPrompt(false)}
       />
+
+      {/* ===== OFFER DETAILS MODAL ===== */}
+      <Modal
+        show={!!activeOffer}
+        onHide={() => setActiveOffer(null)}
+        centered
+        size="lg"
+        className="offer-modal"
+      >
+        {activeOffer && (
+          <>
+            <Modal.Header closeButton className="offer-modal-header">
+              <Modal.Title className="offer-modal-title">
+                🎁 {activeOffer.title || "Offer Details"}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="offer-modal-body">
+              {activeOffer.description && (
+                <p className="offer-modal-desc">{activeOffer.description}</p>
+              )}
+              {activeOffer.condition_type && (
+                <div className="offer-condition-badge">
+                  {activeOffer.condition_type === "MinOrderValue"
+                    ? `🛒 Minimum order of ₹${activeOffer.condition_value}`
+                    : `${activeOffer.condition_type}: ${activeOffer.condition_value}`}
+                </div>
+              )}
+
+              {activeOffer.offeritems && activeOffer.offeritems.length > 0 && (
+                <>
+                  <h6 className="offer-items-heading">
+                    Free items you'll receive
+                  </h6>
+                  <Row xs={2} md={3} lg={4} className="g-3">
+                    {activeOffer.offeritems.map((item) => (
+                      <Col key={item.id}>
+                        <Card className="offer-item-card">
+                          <div className="offer-item-img-wrap">
+                            <Card.Img
+                              variant="top"
+                              src={item.image}
+                              alt={item.name}
+                              loading="lazy"
+                              className="offer-item-img"
+                            />
+                          </div>
+                          <Card.Body className="p-2">
+                            <div className="offer-item-name">{item.name}</div>
+                            <div className="offer-item-pricing">
+                              <span className="offer-item-free">FREE</span>
+                              {item.mrp && (
+                                <span className="offer-item-mrp">
+                                  ₹{parseFloat(item.mrp).toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                </>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="outline-secondary"
+                onClick={() => setActiveOffer(null)}
+              >
+                Close
+              </Button>
+            </Modal.Footer>
+          </>
+        )}
+      </Modal>
       <ToastContainer
-        position="top-end"
+        position="top-center"
         className="p-3"
         style={{ zIndex: 1100 }}
       >

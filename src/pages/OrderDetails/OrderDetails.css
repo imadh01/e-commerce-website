@@ -1,0 +1,353 @@
+/* ===== ORDER DETAILS PAGE ===== */
+.od-page {
+  min-height: calc(100vh - 200px);
+  background: #f5f6fa;
+}
+
+/* ===== HERO ===== */
+.od-hero {
+  background: linear-gradient(135deg, var(--brand-blue) 0%, #0a3d6b 100%);
+  padding: 36px 0;
+}
+
+.od-hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.od-hero-title {
+  font-weight: 800;
+  color: var(--white);
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.od-hero-sub {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+}
+
+.od-back-link {
+  color: var(--brand-orange);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.od-back-link:hover {
+  color: #d4750a;
+}
+
+/* ===== CONTENT ===== */
+.od-content {
+  margin-top: -16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== CARDS ===== */
+.od-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(4, 41, 84, 0.06);
+  overflow: hidden;
+}
+
+/* ===== STATUS BAR ===== */
+.od-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+}
+
+.od-status-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.od-status-badge {
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  font-weight: 700;
+  border-radius: 20px;
+}
+
+.od-track-link {
+  background: var(--brand-orange);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 18px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  text-decoration: none;
+}
+
+.od-track-link:hover {
+  background: #d4750a;
+  color: var(--white);
+}
+
+/* ===== SECTION HEADER ===== */
+.od-section-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.od-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin: 0;
+}
+
+/* ===== ITEMS LIST ===== */
+.od-items-list {
+  padding: 0 24px;
+}
+
+.od-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.od-item:not(:last-child) {
+  border-bottom: 1px dashed var(--border-soft);
+}
+
+.od-item-image-wrap {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-gray, #f3f4f6);
+}
+
+.od-item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.od-item-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: #f3f4f6;
+}
+
+.od-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.od-item-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  line-height: 1.3;
+}
+
+.od-item-code {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.od-item-pricing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.od-item-price {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+}
+
+.od-item-mrp {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.od-item-qty {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.od-item-total {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--brand-blue);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* ===== ORDER SUMMARY ===== */
+.od-summary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.od-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.od-summary-row span:last-child {
+  font-weight: 600;
+  color: var(--brand-blue);
+}
+
+.od-discount-row span:last-child {
+  color: #059669;
+}
+
+.od-total-row {
+  border-top: 2px solid var(--border-soft);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.od-total-row span {
+  font-weight: 800 !important;
+  font-size: 1.05rem !important;
+  color: var(--brand-blue) !important;
+}
+
+/* ===== PAYMENT MODE ===== */
+.od-payment-mode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.od-payment-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.od-payment-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  background: #f3f4f6;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-soft);
+}
+
+/* ===== ADDRESS ===== */
+.od-address-text {
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.od-delivery-note {
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+.od-item-batch {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.od-item-discount-tag {
+  font-size: 0.75rem;
+  color: #059669;
+  font-weight: 700;
+}
+
+.od-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.od-info-row:not(:last-child) {
+  border-bottom: 1px dashed var(--border-soft);
+}
+
+.od-info-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.od-info-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+}
+
+/* ===== ACTION BTN ===== */
+.od-action-btn {
+  background: var(--brand-orange) !important;
+  border: none !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  padding: 10px 28px;
+  border-radius: 10px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 767px) {
+  .od-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .od-status-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .od-track-link {
+    width: 100%;
+    text-align: center;
+  }
+
+  .od-item {
+    flex-wrap: wrap;
+  }
+
+  .od-item-total {
+    width: 100%;
+    text-align: left;
+    padding-left: 76px;
+    margin-top: -4px;
+  }
+}

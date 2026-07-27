@@ -29,7 +29,11 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
   const { user, isRegistered, saveCustomerDetails } = useAuth();
-  const entries = Object.entries(cartItems);
+  const [familyName, setFamilyName] = useState(user?.FamilyName || "");
+  const allEntries = Object.entries(cartItems);
+  // Separate paid items from free offer items (display-only)
+  const entries = allEntries.filter(([, item]) => !item._isFreeOffer);
+  const freeEntries = allEntries.filter(([, item]) => item._isFreeOffer);
 
   const {
     isLoading: locationsLoading,
@@ -242,7 +246,9 @@ export default function Checkout() {
     if (isNewUser && !customerName.trim()) {
       errors.customerName = "Name is required";
     }
-
+    if (isNewUser && !familyName.trim()) {
+      errors.familyName = "Family name is required";
+    }
     if (showNewAddressForm || savedAddresses.length === 0) {
       if (!address.addressLine1.trim())
         errors.addressLine1 = "Address is required";
@@ -274,6 +280,7 @@ export default function Checkout() {
       if (isNewUser) {
         await saveCustomerDetails({
           CustomerName: customerName.trim(),
+          FamilyName: familyName.trim(),
           AddressLine1: address.addressLine1,
           AddressLine2: address.addressLine2,
           Landmark: address.landmark,
@@ -323,21 +330,40 @@ export default function Checkout() {
       }
 
       const orderData = {
-        ...orderAddress,
-        items: entries.map(([id, item]) => ({
-          productId: parseInt(id),
-          price: item.price,
-          mrp: item.mrp,
-          discount: 0,
-          quantity: item.quantity,
-        })),
-        paymentMode: paymentMode,
-        deliveryDate,
-        deliveryTime,
-        deliveryInstruction,
-        voucherDiscount: couponDiscount,
-      };
+        Address: {
+          AddressID: orderAddress.addressId,
+          AddressType: orderAddress.addressType,
+          AddressLine1: orderAddress.addressLine1,
+          AddressLine2: orderAddress.addressLine2,
+          Landmark: orderAddress.landmark,
+          Locality: orderAddress.locality,
+          Taluk: orderAddress.taluk,
+          District: orderAddress.district,
+          State: orderAddress.state,
+          Country: orderAddress.country,
+          PostalCode: orderAddress.postalCode,
+          GeoLocation: null,
+        },
 
+        Product: entries.map(([id, item]) => ({
+          product: {
+            id: parseInt(id),
+            price: item.price,
+            mrp: item.mrp,
+            discount: 0,
+          },
+          qty: item.quantity,
+        })),
+
+        PaymentMode: paymentMode,
+
+        DateTime: `${deliveryDate} ${deliveryTime}`,
+
+        DeliveryInstruction: deliveryInstruction,
+
+        Voucher: couponDiscount,
+      };
+      console.log("CHECKOUT ORDER DATA:", orderData);
       const order = await placeOrder(orderData);
       clearCart();
       navigate(`/order-success/${order.OrderNumber}`);
@@ -367,30 +393,60 @@ export default function Checkout() {
                   <span className="section-number">•</span>
                   Your Details
                 </h5>
-                <Form.Group>
-                  <Form.Label className="checkout-label">
-                    Full Name *
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="John Doe"
-                    value={customerName}
-                    onChange={(e) => {
-                      setCustomerName(e.target.value);
-                      if (formErrors.customerName) {
-                        setFormErrors((prev) => {
-                          const next = { ...prev };
-                          delete next.customerName;
-                          return next;
-                        });
-                      }
-                    }}
-                    isInvalid={!!formErrors.customerName}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.customerName}
-                  </Form.Control.Feedback>
-                </Form.Group>
+                <Row className="g-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="checkout-label">
+                        Full Name *
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="John"
+                        value={customerName}
+                        onChange={(e) => {
+                          setCustomerName(e.target.value);
+                          if (formErrors.customerName) {
+                            setFormErrors((prev) => {
+                              const n = { ...prev };
+                              delete n.customerName;
+                              return n;
+                            });
+                          }
+                        }}
+                        isInvalid={!!formErrors.customerName}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {formErrors.customerName}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label className="checkout-label">
+                        Family Name *
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Doe"
+                        value={familyName}
+                        onChange={(e) => {
+                          setFamilyName(e.target.value);
+                          if (formErrors.familyName) {
+                            setFormErrors((prev) => {
+                              const n = { ...prev };
+                              delete n.familyName;
+                              return n;
+                            });
+                          }
+                        }}
+                        isInvalid={!!formErrors.familyName}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {formErrors.familyName}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
           )}
@@ -937,6 +993,42 @@ export default function Checkout() {
                   </div>
                 );
               })}
+
+              {/* Free offer items — display only */}
+              {freeEntries.length > 0 && (
+                <>
+                  <div className="checkout-free-divider">
+                    🎁 Free with this order
+                  </div>
+                  {freeEntries.map(([id, item]) => (
+                    <div
+                      key={id}
+                      className="checkout-item-row checkout-item-free"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="checkout-item-img"
+                      />
+                      <div className="checkout-item-info">
+                        <div className="checkout-item-name">{item.name}</div>
+                        <div
+                          className="small"
+                          style={{ color: "#059669", fontWeight: 700 }}
+                        >
+                          FREE
+                        </div>
+                      </div>
+                      <div
+                        className="checkout-item-total"
+                        style={{ color: "#059669" }}
+                      >
+                        ₹0.00
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
 
             <hr />
