@@ -19,7 +19,7 @@ const STORAGE_KEY = "synergein_cart_v1";
 
 function loadInitialState() {
   try {
-    const raw = localStorage.getItem("mamluk_cart_v1");
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { cartItems: {} };
     return { cartItems: JSON.parse(raw) };
   } catch {
@@ -78,6 +78,10 @@ function cartReducer(state, action) {
 
     case "CLEAR_CART":
       return { ...state, cartItems: {} };
+
+    case "RESTORE_CART": {
+      return { ...state, cartItems: action.payload || {} };
+    }
 
     // Batch-add free offer items for a qualifying offer
     case "ADD_FREE_OFFER_ITEMS": {
@@ -215,6 +219,28 @@ export function CartProvider({ children }) {
     removeFromCart: (productId) =>
       dispatch({ type: "REMOVE_FROM_CART", payload: { productId } }),
     clearCart: () => dispatch({ type: "CLEAR_CART" }),
+    backupAndClearCart: () => {
+      try {
+        localStorage.setItem(
+          "synergein_cart_backup",
+          JSON.stringify(state.cartItems),
+        );
+      } catch {
+        /* ignore */
+      }
+      dispatch({ type: "CLEAR_CART" });
+    },
+    restoreCart: () => {
+      try {
+        const raw = localStorage.getItem("synergein_cart_backup");
+        if (raw) {
+          dispatch({ type: "RESTORE_CART", payload: JSON.parse(raw) });
+          localStorage.removeItem("synergein_cart_backup");
+        }
+      } catch {
+        /* ignore */
+      }
+    },
     // Called from Home page after fetching offer configs
     setOfferConfigs,
   };

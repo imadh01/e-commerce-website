@@ -5,6 +5,7 @@ import { RecaptchaVerifier } from "firebase/auth";
 import { getFirebaseAuth } from "../../config/firebase";
 import { useAuth } from "../../context/AuthContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { useCart } from "../../context/CartContext";
 import "./Login.css";
 
 export default function Login() {
@@ -24,7 +25,7 @@ export default function Login() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
-
+  const { restoreCart } = useCart();
   const redirectTo = location.state?.from || "/";
 
   // Redirect if already logged in
@@ -104,6 +105,7 @@ export default function Login() {
 
     try {
       await verifyOtp(otp.trim());
+      restoreCart();
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message);

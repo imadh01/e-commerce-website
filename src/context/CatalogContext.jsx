@@ -5,7 +5,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { fetchCatalog } from "../pages/Home/homeApi";
+import { fetchCatalog } from "../api/homeApi";
 
 const CatalogContext = createContext(null);
 

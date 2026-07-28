@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
     // Clear all user data
     setUser(null);
     resetAuthFlow();
-    localStorage.removeItem("synergein_cart_v1");
+    // localStorage.removeItem("synergein_cart_v1");
     localStorage.removeItem("synergein_auth_v1");
     // Hard reload to reset all contexts
     window.location.href = "/";

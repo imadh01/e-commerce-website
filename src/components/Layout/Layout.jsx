@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import CartFloatingBar from "../CartFloatingBar/CartFloatingBar";
 
 // Wraps every page with the shared Header and Footer, so individual
 // page components (Home, About, etc.) only need to render their own
@@ -16,6 +17,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <CartFloatingBar />
     </>
   );
 }

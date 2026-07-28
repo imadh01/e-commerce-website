@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { Dropdown, Modal, Button } from "react-bootstrap";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+
 import "./Header.css";
 
 // The 6 real pages, matching our router paths in App.jsx.
@@ -64,6 +65,7 @@ export default function Header() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isLoggedIn, logout } = useAuth();
+  const { backupAndClearCart } = useCart();
 
   // Pulls the live cart count from CartContext — this is the connection
   // point: whatever the Home page's "Add to Cart" button does, this
@@ -188,6 +190,7 @@ export default function Header() {
                       <Button
                         variant="danger"
                         onClick={() => {
+                          backupAndClearCart();
                           logout();
                           setShowLogoutConfirm(false);
                         }}
@@ -274,6 +277,7 @@ export default function Header() {
             <Button
               variant="danger"
               onClick={() => {
+                backupAndClearCart();
                 logout();
                 setShowLogoutConfirm(false);
               }}
