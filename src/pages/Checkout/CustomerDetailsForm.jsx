@@ -5,6 +5,10 @@ export default function CustomerDetailsForm({
   setCustomerName,
   familyName,
   setFamilyName,
+  secondaryMobile,
+  setSecondaryMobile,
+  email,
+  setEmail,
   formErrors,
   clearError,
 }) {
@@ -50,6 +54,30 @@ export default function CustomerDetailsForm({
               <Form.Control.Feedback type="invalid">
                 {formErrors.familyName}
               </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label className="checkout-label">
+                Secondary Phone
+              </Form.Label>
+              <Form.Control
+                type="tel"
+                placeholder="Optional"
+                value={secondaryMobile}
+                onChange={(e) => setSecondaryMobile(e.target.value)}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label className="checkout-label">Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="john@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </Form.Group>
           </Col>
         </Row>

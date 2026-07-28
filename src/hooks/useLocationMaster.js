@@ -51,6 +51,50 @@ export function useLocationMaster() {
     const item = list.find((i) => i.name.toLowerCase() === name.toLowerCase());
     return item?.id || null;
   }
+
+  function getAllLocalities() {
+    return locations?.localities || [];
+  }
+  function findParents(localityId) {
+    const locality = (locations?.localities || []).find(
+      (l) => String(l.id) === String(localityId),
+    );
+    if (!locality) return null;
+
+    const taluk = (locations?.taluks || []).find(
+      (t) => String(t.id) === String(locality.taluk_id),
+    );
+    const district = taluk
+      ? (locations?.districts || []).find(
+          (d) => String(d.id) === String(taluk.district_id),
+        )
+      : null;
+    const state = district
+      ? (locations?.states || []).find(
+          (s) => String(s.id) === String(district.state_id),
+        )
+      : null;
+    const country = state
+      ? (locations?.countries || []).find(
+          (c) => String(c.id) === String(state.country_id),
+        )
+      : null;
+    return {
+      locality,
+      taluk,
+      district,
+      state,
+      country,
+      postalCode: locality.postal_code || "",
+    };
+  }
+  // Find locality ID from name (for pre-filling edit forms)
+  function findLocalityByName(name) {
+    if (!name) return null;
+    return (locations?.localities || []).find(
+      (l) => l.name.toLowerCase() === name.toLowerCase(),
+    );
+  }
   return {
     isLoading,
     locations,
@@ -60,5 +104,8 @@ export function useLocationMaster() {
     getTaluks,
     getLocalities,
     findIdByName,
+    getAllLocalities,
+    findParents,
+    findLocalityByName,
   };
 }

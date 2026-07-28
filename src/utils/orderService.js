@@ -4,6 +4,7 @@ import api from "../api/axiosClient";
 
 function buildOrderPayload(data) {
   return {
+    UserID: data.UserID,
     Address: {
       AddressID: data.Address?.AddressID || null,
       AddressType: data.Address?.AddressType || "Home",

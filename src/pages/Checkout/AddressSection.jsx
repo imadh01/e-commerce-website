@@ -19,11 +19,8 @@ export default function AddressSection({
   onSelectSavedAddress,
   onAddNewAddress,
   onAddressChange,
-  getCountries,
-  getStates,
-  getDistricts,
-  getTaluks,
-  getLocalities,
+  onLocalitySelect,
+  allLocalities,
 }) {
   return (
     <Card className="checkout-card">
@@ -189,100 +186,7 @@ export default function AddressSection({
                   </Form.Group>
                 </Col>
 
-                {/* Country */}
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">Country</Form.Label>
-                    <Form.Select
-                      value={address.countryId}
-                      onChange={(e) =>
-                        onAddressChange("countryId", e.target.value)
-                      }
-                    >
-                      <option value="">Select Country</option>
-                      {getCountries().map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-
-                {/* State */}
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">State *</Form.Label>
-                    <Form.Select
-                      value={address.stateId}
-                      onChange={(e) =>
-                        onAddressChange("stateId", e.target.value)
-                      }
-                      isInvalid={!!formErrors.state}
-                      disabled={!address.countryId}
-                    >
-                      <option value="">Select State</option>
-                      {getStates(address.countryId).map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.state}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-
-                {/* District */}
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">
-                      District *
-                    </Form.Label>
-                    <Form.Select
-                      value={address.districtId}
-                      onChange={(e) =>
-                        onAddressChange("districtId", e.target.value)
-                      }
-                      isInvalid={!!formErrors.district}
-                      disabled={!address.stateId}
-                    >
-                      <option value="">Select District</option>
-                      {getDistricts(address.stateId).map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                    <Form.Control.Feedback type="invalid">
-                      {formErrors.district}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-
-                {/* Taluk */}
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label className="checkout-label">Taluk</Form.Label>
-                    <Form.Select
-                      value={address.talukId}
-                      onChange={(e) =>
-                        onAddressChange("talukId", e.target.value)
-                      }
-                      disabled={!address.districtId}
-                    >
-                      <option value="">Select Taluk</option>
-                      {getTaluks(address.districtId).map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-
-                {/* Locality */}
+                {/* Locality — user picks this, everything else auto-fills */}
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label className="checkout-label">
@@ -290,14 +194,11 @@ export default function AddressSection({
                     </Form.Label>
                     <Form.Select
                       value={address.localityId}
-                      onChange={(e) =>
-                        onAddressChange("localityId", e.target.value)
-                      }
+                      onChange={(e) => onLocalitySelect(e.target.value)}
                       isInvalid={!!formErrors.locality}
-                      disabled={!address.talukId}
                     >
                       <option value="">Select Locality</option>
-                      {getLocalities(address.talukId).map((l) => (
+                      {allLocalities.map((l) => (
                         <option key={l.id} value={l.id}>
                           {l.name}
                         </option>
@@ -309,7 +210,59 @@ export default function AddressSection({
                   </Form.Group>
                 </Col>
 
-                {/* Postal Code */}
+                {/* Taluk — auto-filled, read-only */}
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="checkout-label">Taluk</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={address.taluk}
+                      readOnly
+                      className="bg-light"
+                    />
+                  </Form.Group>
+                </Col>
+
+                {/* District — auto-filled, read-only */}
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="checkout-label">District</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={address.district}
+                      readOnly
+                      className="bg-light"
+                    />
+                  </Form.Group>
+                </Col>
+
+                {/* State — auto-filled, read-only */}
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="checkout-label">State</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={address.state}
+                      readOnly
+                      className="bg-light"
+                    />
+                  </Form.Group>
+                </Col>
+
+                {/* Country — auto-filled, read-only */}
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label className="checkout-label">Country</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={address.country}
+                      readOnly
+                      className="bg-light"
+                    />
+                  </Form.Group>
+                </Col>
+
+                {/* Postal Code — auto-filled, read-only */}
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label className="checkout-label">
@@ -318,11 +271,8 @@ export default function AddressSection({
                     <Form.Control
                       type="text"
                       value={address.postalCode}
-                      onChange={(e) =>
-                        onAddressChange("postalCode", e.target.value)
-                      }
-                      placeholder="Enter postal code"
-                      maxLength={6}
+                      readOnly
+                      className="bg-light"
                     />
                   </Form.Group>
                 </Col>

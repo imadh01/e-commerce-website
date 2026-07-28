@@ -21,6 +21,9 @@ export default function Profile() {
     getDistricts,
     getTaluks,
     getLocalities,
+    getAllLocalities,
+    findParents,
+    findLocalityByName,
   } = useLocationMaster();
 
   const [isEditing, setIsEditing] = useState(!user?.CustomerName);
@@ -192,6 +195,44 @@ export default function Profile() {
     }
   }
 
+  function handleLocalitySelect(localityId) {
+    if (!localityId) {
+      setAddressForm((prev) => ({
+        ...prev,
+        localityId: "",
+        locality: "",
+        talukId: "",
+        taluk: "",
+        districtId: "",
+        district: "",
+        stateId: "",
+        state: "",
+        countryId: "",
+        country: "",
+        postalCode: "",
+      }));
+      return;
+    }
+
+    const parents = findParents(localityId);
+    if (!parents) return;
+
+    setAddressForm((prev) => ({
+      ...prev,
+      localityId,
+      locality: parents.locality?.name || "",
+      talukId: parents.taluk?.id || "",
+      taluk: parents.taluk?.name || "",
+      districtId: parents.district?.id || "",
+      district: parents.district?.name || "",
+      stateId: parents.state?.id || "",
+      state: parents.state?.name || "",
+      countryId: parents.country?.id || 1,
+      country: parents.country?.name || "India",
+      postalCode: parents.postalCode || "",
+    }));
+  }
+
   function openAddAddress() {
     setEditingAddress(null);
     setAddressForm(getEmptyAddressForm(addresses.length === 0));
@@ -201,16 +242,20 @@ export default function Profile() {
 
   function openEditAddress(addr) {
     setEditingAddress(addr);
+
+    // Find locality ID from name to pre-select
+    const matchedLocality = findLocalityByName(addr.Locality);
+
     setAddressForm({
       addressType: addr.AddressType || "Home",
       addressLine1: addr.AddressLine1 || "",
       addressLine2: addr.AddressLine2 || "",
       landmark: addr.Landmark || "",
       countryId: 1,
-      stateId: "",
-      districtId: "",
-      talukId: "",
-      localityId: "",
+      stateId: addr.State || "",
+      districtId: addr.District || "",
+      talukId: addr.Taluk || "",
+      localityId: matchedLocality?.id || "",
       country: addr.Country || "India",
       state: addr.State || "",
       district: addr.District || "",
@@ -332,13 +377,10 @@ export default function Profile() {
         isSaving={isSaving}
         locationsLoading={locationsLoading}
         onAddressChange={handleAddressChange}
+        onLocalitySelect={handleLocalitySelect}
+        allLocalities={getAllLocalities()}
         onSave={handleSaveAddress}
         addresses={addresses}
-        getCountries={getCountries}
-        getStates={getStates}
-        getDistricts={getDistricts}
-        getTaluks={getTaluks}
-        getLocalities={getLocalities}
       />
     </div>
   );

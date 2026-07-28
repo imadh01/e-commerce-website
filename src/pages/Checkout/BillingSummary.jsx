@@ -12,6 +12,7 @@ export default function BillingSummary({
   isSubmitting,
   submitError,
   onPlaceOrder,
+  showPlaceOrder = true,
 }) {
   return (
     <Card className="checkout-summary-card">
@@ -117,21 +118,23 @@ export default function BillingSummary({
         </Alert>
       )}
 
-      <Button
-        size="lg"
-        className="w-100 mt-3 checkout-place-btn"
-        onClick={onPlaceOrder}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <>
-            <Spinner animation="border" size="sm" className="me-2" />
-            Placing Order...
-          </>
-        ) : (
-          `Place Order · ₹${finalTotal.toFixed(2)}`
-        )}
-      </Button>
+      {showPlaceOrder && (
+        <Button
+          size="lg"
+          className="w-100 mt-3 checkout-place-btn"
+          onClick={onPlaceOrder}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Spinner animation="border" size="sm" className="me-2" />
+              Placing Order...
+            </>
+          ) : (
+            `Place Order · ₹${finalTotal.toFixed(2)}`
+          )}
+        </Button>
+      )}
 
       <div className="text-center mt-3">
         <Link to="/cart" className="text-muted small">
