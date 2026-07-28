@@ -1,6 +1,7 @@
 import { Container, Button } from "react-bootstrap";
 import { useRef } from "react";
 import { getDiscountPercent } from "../../utils/pricing";
+import { handleImgError } from "../../utils/imageFallback";
 
 export default function OfferProductsTrack({
   products = [],
@@ -54,6 +55,7 @@ export default function OfferProductsTrack({
                       alt={product.name}
                       className="op-img"
                       loading="lazy"
+                      onError={handleImgError}
                     />
                   </div>
 

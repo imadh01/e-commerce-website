@@ -8,6 +8,7 @@ import {
   Pagination,
 } from "react-bootstrap";
 import { getDiscountPercent } from "../../utils/pricing";
+import { handleImgError } from "../../utils/imageFallback";
 
 export default function ProductGrid({
   title,
@@ -73,6 +74,7 @@ export default function ProductGrid({
                       alt={item.name}
                       loading="lazy"
                       className="product-img"
+                      onError={handleImgError}
                     />
                   </div>
                   <Card.Body className="d-flex flex-column">

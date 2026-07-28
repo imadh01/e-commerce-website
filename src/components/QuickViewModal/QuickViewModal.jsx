@@ -3,6 +3,7 @@ import { useCart } from "../../context/CartContext";
 import { getDiscountPercent } from "../../utils/pricing";
 import "./QuickViewModal.css";
 import { useAuth } from "../../context/AuthContext";
+import { handleImgError } from "../../utils/imageFallback";
 
 export default function QuickViewModal({
   show,
@@ -78,6 +79,7 @@ export default function QuickViewModal({
               src={product.image}
               alt={product.name}
               className="quick-view-image"
+              onError={handleImgError}
             />
           </div>
 

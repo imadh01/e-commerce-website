@@ -26,6 +26,7 @@ const Profile = lazy(() => import("./pages/Profile/Profile"));
 const Orders = lazy(() => import("./pages/Orders/Orders"));
 const OrderDetails = lazy(() => import("./pages/OrderDetails/OrderDetails"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking/OrderTracking"));
+const NotFound = lazy(() => import("./pages/NotFound/NotFound"));
 
 function PageLoader() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route element={<Layout />}>
+                    <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/faq" element={<FAQ />} />
@@ -60,39 +62,39 @@ export default function App() {
                       path="/order-success/:orderId"
                       element={<OrderSuccess />}
                     />
+                    <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/orders"
+                      element={
+                        <ProtectedRoute>
+                          <Orders />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/order-details/:orderId"
+                      element={
+                        <ProtectedRoute>
+                          <OrderDetails />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/order-tracking/:orderId"
+                      element={
+                        <ProtectedRoute>
+                          <OrderTracking />
+                        </ProtectedRoute>
+                      }
+                    />
                   </Route>
-                  <Route
-                    path="/profile"
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/orders"
-                    element={
-                      <ProtectedRoute>
-                        <Orders />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/order-details/:orderId"
-                    element={
-                      <ProtectedRoute>
-                        <OrderDetails />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/order-tracking/:orderId"
-                    element={
-                      <ProtectedRoute>
-                        <OrderTracking />
-                      </ProtectedRoute>
-                    }
-                  />
                 </Routes>
               </Suspense>
             </BrowserRouter>

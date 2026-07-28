@@ -98,7 +98,30 @@
 }
 
 /* Banners — natural size from backend, scrollable */
-.so-banners-wrap {
+.so-banners {
+  overflow: hidden;
+}
+
+.so-banners-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: marquee 15s linear infinite;
+}
+
+.so-banners-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+/* .so-banners-wrap {
   margin-bottom: 0;
 }
 
@@ -106,7 +129,6 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
@@ -118,7 +140,7 @@
 
 .so-banner-card {
   flex: 0 0 auto;
-  scroll-snap-align: start;
+  min-width: 45%;
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(4, 41, 84, 0.08);
@@ -128,7 +150,7 @@
   display: block;
   width: auto;
   height: auto;
-}
+} */
 
 /* ===== OFFER PRODUCTS SECTION (horizontal scroll) ===== */
 .offer-products-section {

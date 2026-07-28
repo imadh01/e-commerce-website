@@ -2,6 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { getDiscountPercent } from "../../utils/pricing";
+import { handleImgError } from "../../utils/imageFallback";
+import { useMemo } from "react";
+
 import "./Cart.css";
 import {
   Container,
@@ -24,16 +27,19 @@ export default function Cart() {
 
   // Derive totals in one pass — reduce is the right tool here (single
   // traversal, no intermediate arrays).
-  const totals = entries.reduce(
-    (acc, [, item]) => {
-      const price = parseFloat(item.price);
-      const mrp = item.mrp ? parseFloat(item.mrp) : price;
-      acc.itemCount += item.quantity;
-      acc.subtotal += price * item.quantity;
-      acc.mrpTotal += mrp * item.quantity;
-      return acc;
-    },
-    { itemCount: 0, subtotal: 0, mrpTotal: 0 },
+  const totals = useMemo(
+    () =>
+      entries.reduce(
+        (acc, [, item]) => {
+          const price = parseFloat(item.price);
+          const mrp = item.mrp ? parseFloat(item.mrp) : price;
+          acc.subtotal += price * item.quantity;
+          acc.mrpTotal += mrp * item.quantity;
+          return acc;
+        },
+        { subtotal: 0, mrpTotal: 0 },
+      ),
+    [entries],
   );
 
   const savings = totals.mrpTotal - totals.subtotal;
@@ -134,6 +140,7 @@ export default function Cart() {
                       src={item.image}
                       alt={item.name}
                       className="cart-item-image"
+                      onError={handleImgError}
                     />
                     <div className="cart-item-info">
                       <div className="cart-item-name">{item.name}</div>
