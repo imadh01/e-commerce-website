@@ -1,4 +1,4 @@
-import { Container, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 
 const FEATURES = [
   {
@@ -30,23 +30,21 @@ const FEATURES = [
 export default function FeaturesBar() {
   return (
     <section className="features-bar">
-      <Container fluid className="px-4">
-        <Row xs={1} sm={2} lg={4} className="g-3">
-          {FEATURES.map((f) => (
-            <Col key={f.title}>
-              <div className="feature-card">
-                <div className={`feature-icon feature-icon-${f.color}`}>
-                  {f.icon}
-                </div>
-                <div>
-                  <div className="feature-title">{f.title}</div>
-                  <div className="feature-desc">{f.desc}</div>
-                </div>
+      <Row xs={1} className="g-4">
+        {FEATURES.map((f) => (
+          <Col key={f.title}>
+            <div className="feature-card">
+              <div className={`feature-icon feature-icon-${f.color}`}>
+                {f.icon}
               </div>
-            </Col>
-          ))}
-        </Row>
-      </Container>
+              <div>
+                <div className="feature-title">{f.title}</div>
+                <div className="feature-desc">{f.desc}</div>
+              </div>
+            </div>
+          </Col>
+        ))}
+      </Row>
     </section>
   );
 }

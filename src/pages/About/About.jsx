@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./About.css";
 import { usePageTitle } from "../../hooks/usePageTitle";
 
@@ -229,9 +230,9 @@ export default function About() {
         </p>
         <p className="reveal-el">
           For all other inquiries, visit our{" "}
-          <a href="/contact" className="inline-link">
+          <Link to="/contact" className="inline-link">
             Contact Us
-          </a>{" "}
+          </Link>{" "}
           page.
         </p>
       </section>

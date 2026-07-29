@@ -76,7 +76,7 @@
 /* ===== SUNDAY OFFERS SECTION ===== */
 .sunday-offers-section {
   padding: 28px 0 24px;
-  background: linear-gradient(180deg, #fff8f3 0%, var(--white) 100%);
+  /* background: linear-gradient(180deg, #fff8f3 0%, var(--white) 100%); */
 }
 
 .so-header {
@@ -226,10 +226,23 @@
 }
 
 /* ===== FEATURES BAR ===== */
-.features-bar {
+/* .features-bar {
   padding: 24px 0;
   background: var(--white);
   border-bottom: 1px solid var(--border-soft);
+} */
+
+.features-bar {
+  padding: 0;
+  background: transparent;
+  border-bottom: none;
+  height: 100%;
+  display: flex;
+  align-items: center; /* centers the cards vertically against the carousel */
+}
+
+.features-bar .row {
+  width: 100%;
 }
 
 .feature-card {
@@ -434,11 +447,6 @@
   right: -8px;
 }
 
-@media (max-width: 768px) {
-  .op-arrow {
-    display: none;
-  }
-}
 /* ===== PRODUCT CARD OVERRIDES ===== */
 .product-card {
   border-radius: 14px !important;

@@ -6,7 +6,7 @@ export default function HeroBanner({ searchTerm, onSearchChange }) {
       <div className="hero-overlay"></div>
       <div className="hero-content">
         <h1>Thousand of best grocery items</h1>
-        <p>Online Grocery Shopping at Low Price in Worldwide on Synergein</p>
+        <p>Online Grocery Shopping at Low Price in Worldwide on Mamluk</p>
         <InputGroup
           className="hero-search-group mx-auto"
           style={{ maxWidth: 560 }}
@@ -23,17 +23,17 @@ export default function HeroBanner({ searchTerm, onSearchChange }) {
             className="hero-search-btn"
             aria-label="Search"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              style={{ color: "white" }}
+            >
+              <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
               <path
                 d="M21 21L16.65 16.65"
-                stroke="currentColor"
+                stroke="white"
                 strokeWidth="2"
                 strokeLinecap="round"
               />

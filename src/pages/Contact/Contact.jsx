@@ -1,10 +1,8 @@
 import { useState } from "react";
 import "./Contact.css";
 import { usePageTitle } from "../../hooks/usePageTitle";
+import { submitContactForm } from "../../api/contactApi";
 
-// Each field's validation rule lives here, keyed by field name — one
-// place to look if you ever need to change what "valid" means for a
-// given field, instead of validation logic scattered through the JSX.
 const validators = {
   fullName: (value) =>
     value.trim().length >= 2 ? "" : "Please enter your full name.",
@@ -13,7 +11,7 @@ const validators = {
       ? ""
       : "Please enter a valid email address.",
   phone: (value) => {
-    if (value.trim() === "") return ""; // optional field
+    if (value.trim() === "") return "";
     return /^[0-9+\-\s()]{6,}$/.test(value.trim())
       ? ""
       : "Please enter a valid phone number.";
@@ -42,10 +40,6 @@ export default function Contact() {
   function handleChange(e) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Re-validate live, but only for fields the user has already
-    // interacted with — avoids showing "required" errors before
-    // they've even had a chance to type anything.
     if (touched[name]) {
       setErrors((prev) => ({ ...prev, [name]: validators[name](value) }));
     }
@@ -57,11 +51,9 @@ export default function Contact() {
     setErrors((prev) => ({ ...prev, [name]: validators[name](value) }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    // Validate every field at once, regardless of what's been touched —
-    // this catches anything the user skipped entirely.
     const newErrors = {};
     let hasError = false;
 
@@ -77,19 +69,25 @@ export default function Contact() {
     if (hasError) return;
 
     setIsSubmitting(true);
-
-    // Simulated network delay — this is exactly where a real
-    // api.post('/contact', formData) call will go once the Laravel
-    // backend endpoint exists.
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await submitContactForm({
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+      });
       setShowSuccess(true);
       setFormData(initialFormState);
       setTouched({});
       setErrors({});
-
       setTimeout(() => setShowSuccess(false), 6000);
-    }, 900);
+    } catch (err) {
+      setErrors({
+        message: err.message || "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -268,7 +266,7 @@ export default function Contact() {
             </div>
             <div>
               <h3>Office Location</h3>
-              <p>2756 Quiet Valley Lane, Reseda, California, United States</p>
+              <p>1317-D, EC Road, Manamelkudi – 614 620</p>
             </div>
           </div>
 
@@ -285,12 +283,8 @@ export default function Contact() {
               </svg>
             </div>
             <div>
-              <h3>Call us anytime</h3>
-              <p>
-                Change the design through a range
-                <br />
-                +89 5631 564 &nbsp; +88 5321 036
-              </p>
+              <h3>Call Us Anytime</h3>
+              <p>+91 9500 950006 &nbsp;&nbsp; +91 7200 737002</p>
             </div>
           </div>
 

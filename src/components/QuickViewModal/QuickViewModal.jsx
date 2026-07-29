@@ -3,7 +3,6 @@ import { useCart } from "../../context/CartContext";
 import { getDiscountPercent } from "../../utils/pricing";
 import "./QuickViewModal.css";
 import { useAuth } from "../../context/AuthContext";
-import { handleImgError } from "../../utils/imageFallback";
 
 export default function QuickViewModal({
   show,
@@ -11,10 +10,8 @@ export default function QuickViewModal({
   product,
   categoryName,
   onDone,
+  onAuthRequired,
 }) {
-  // The modal now reads AND writes cart state directly. There's no
-  // local "quantity" — the source of truth is CartContext, so any
-  // +/- click flows through to the Header's cart badge instantly.
   const { cartItems, addToCart, setQuantity } = useCart();
 
   if (!product) return null;
@@ -27,11 +24,9 @@ export default function QuickViewModal({
   const discountPct = getDiscountPercent(product.price, product.mrp);
   const { isLoggedIn } = useAuth();
 
-  // In handlePrimary:
   function handlePrimary() {
     if (!isLoggedIn) {
       onHide();
-      // The parent will show the auth prompt
       onAuthRequired?.();
       return;
     }
@@ -40,19 +35,16 @@ export default function QuickViewModal({
   }
 
   function decrement() {
-    // setQuantity handles qty=0 by removing the item from the cart.
     setQuantity(product.id, cartQty - 1);
   }
 
   function increment() {
+    if (!isLoggedIn) {
+      onHide();
+      onAuthRequired?.();
+      return;
+    }
     addToCart(product, 1);
-  }
-
-  function handlePrimary() {
-    // If not yet in cart, add one. If already in cart, this is just
-    // a "done" action — user already added via +.
-    if (!inCart) addToCart(product, 1);
-    onDone(product, inCart ? "updated" : "added");
   }
 
   return (
@@ -79,7 +71,6 @@ export default function QuickViewModal({
               src={product.image}
               alt={product.name}
               className="quick-view-image"
-              onError={handleImgError}
             />
           </div>
 
