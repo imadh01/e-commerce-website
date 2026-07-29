@@ -147,8 +147,8 @@ export default function About() {
           request by email or telephone, please do not respond/divulge any
           sensitive data or information and forward the information relating to
           the same to{" "}
-          <a href="mailto:info@synergein.com" className="inline-link">
-            info@synergein.com
+          <a href="mailto:mamluk@mamluk.in" className="inline-link">
+            mamluk@mamluk.in
           </a>{" "}
           for necessary action.
         </p>
@@ -212,7 +212,7 @@ export default function About() {
         <h2 className="reveal-el">Be safe, be secure!!</h2>
 
         <p className="reveal-el">
-          Synergein is leading the charge in transforming the grocery landscape
+          Mamluk is leading the charge in transforming the grocery landscape
           through cutting-edge technology and innovation. We believe everyone
           deserves the opportunity to continually improve their life — a process
           that often begins at home. As part of our mission of helping consumers

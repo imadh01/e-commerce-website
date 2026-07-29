@@ -78,11 +78,11 @@ export default function Terms() {
         </p>
 
         <p className="reveal-el">
-          "Synergein" is a trademark of Synergein Private Limited ("Company"), a
+          "Mamluk" is a trademark of Mamluk Private Limited ("Company"), a
           company incorporated under the Companies Act, 2013 with its registered
           and corporate office at Plot 64H, Sector 18, Gudgeon 122001 in the
-          course of its business. The domain name synergein.com is owned by the
-          Company.
+          course of its business. The domain name
+          mamlukportal.synergeinsolutions.com is owned by the Company.
         </p>
 
         <p className="reveal-el">

@@ -266,7 +266,7 @@ export default function Contact() {
             </div>
             <div>
               <h3>Office Location</h3>
-              <p>1317-D, EC Road, Manamelkudi – 614 620</p>
+              <p>1317-D, EC Road, Manamelkudi – 614620</p>
             </div>
           </div>
 

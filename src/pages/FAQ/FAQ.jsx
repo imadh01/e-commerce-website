@@ -9,7 +9,7 @@ const faqItems = [
   {
     question: "How to contact with Customer Service?",
     answer:
-      "You can reach our Customer Service team through the Contact Us page, live chat, or by emailing support@synergein.com. Our team typically responds within 24 hours on business days.",
+      "You can reach our Customer Service team through the Contact Us page, live chat, or by emailing mamluk@mamluk.in. Our team typically responds within 24 hours on business days.",
   },
   {
     question: "App installation failed, how to update system information?",
