@@ -248,7 +248,6 @@ export default function Home() {
   // ===== RENDER =====
   return (
     <div className="home-page">
-      (
       <HeroBanner
         searchTerm={searchTerm}
         onSearchChange={(val) => {
@@ -256,7 +255,6 @@ export default function Home() {
           setCurrentPage(1);
         }}
       />
-      )
       {!searchTerm && showOffersSection && hasOfferBanners && (
         <SundayOffersBanners
           banners={sundayOffers.weekend_offers}

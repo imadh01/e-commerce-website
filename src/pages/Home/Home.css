@@ -98,28 +98,37 @@
 }
 
 /* Banners — natural size from backend, scrollable */
-.so-banners {
+.so-carousel {
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(4, 41, 84, 0.08);
 }
 
-.so-banners-track {
-  display: flex;
-  gap: 16px;
-  width: max-content;
-  animation: marquee 15s linear infinite;
+.so-carousel-img {
+  width: 100%;
+  height: 400px;
+  display: block;
+  object-fit: contain;
+  background: #fff8f3;
 }
 
-.so-banners-track:hover {
-  animation-play-state: paused;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
+@media (max-width: 768px) {
+  .so-carousel-img {
+    height: 220px;
   }
-  100% {
-    transform: translateX(-50%);
-  }
+}
+
+/* Style the arrows to match brand */
+.so-carousel .carousel-control-prev-icon,
+.so-carousel .carousel-control-next-icon {
+  background-color: var(--brand-orange);
+  border-radius: 50%;
+  padding: 20px;
+  background-size: 50%;
+}
+
+.so-carousel .carousel-indicators [data-bs-target] {
+  background-color: var(--brand-orange);
 }
 /* .so-banners-wrap {
   margin-bottom: 0;
