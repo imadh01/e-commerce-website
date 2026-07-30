@@ -10,11 +10,11 @@
   gap: 40px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 70px 24px 0;
+  padding: 70px 0px 0;
 }
 
 .hero-text h1 {
-  font-size: 2.6rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: var(--brand-blue);
   line-height: 1.2;
@@ -44,7 +44,7 @@
 .support-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 70px 24px;
+  padding: 70px 0px 24px;
 }
 
 .support-inner {
@@ -179,7 +179,7 @@
 }
 
 .info-inner {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);

@@ -56,17 +56,17 @@ export default function OrderDetails() {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Prefer order passed via route state (from Orders page click);
-  // fall back to fetching from /customerorders if user navigates directly.
   const [order, setOrder] = useState(location.state?.order || null);
-  const [isLoading, setIsLoading] = useState(!location.state?.order);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Already have the order from route state — skip fetch
-    if (order) return;
-    if (!user?.UserID) return;
+    if (!user?.UserID) {
+      setIsLoading(false);
+      return;
+    }
 
+    // Always fetch fresh from API to ensure Items array is populated
     async function loadOrder() {
       try {
         const orders = await fetchCustomerOrders(user.UserID);
@@ -86,7 +86,7 @@ export default function OrderDetails() {
     }
 
     loadOrder();
-  }, [orderId, user]);
+  }, [orderId, user?.UserID]);
 
   // ===== LOADING =====
   if (isLoading) {
@@ -177,7 +177,7 @@ export default function OrderDetails() {
     );
   }
 
-  // ===== RENDER ORDER =====
+  // ===== RENDER =====
   const sc = getStatusConfig(order.Status);
   const orderDate = new Date(order.OrderDate).toLocaleDateString("en-IN", {
     day: "numeric",
@@ -201,7 +201,6 @@ export default function OrderDetails() {
 
   return (
     <div className="od-page">
-      {/* Hero */}
       <div className="od-hero">
         <Container>
           <div className="od-hero-content">
@@ -221,7 +220,6 @@ export default function OrderDetails() {
 
       <Container className="od-content py-4">
         <Row className="g-4">
-          {/* Left column — items */}
           <Col lg={8}>
             {/* Status card */}
             <Card className="od-card mb-4">
@@ -251,7 +249,7 @@ export default function OrderDetails() {
             <Card className="od-card">
               <Card.Body className="p-0">
                 <div className="od-section-header">
-                  <h3 className="od-section-title">Items ({items.length})</h3>
+                  <h3 className="od-section-title">Order Items</h3>
                 </div>
 
                 {items.length === 0 ? (
@@ -316,7 +314,6 @@ export default function OrderDetails() {
             </Card>
           </Col>
 
-          {/* Right column — summary + delivery info */}
           <Col lg={4}>
             {/* Order summary */}
             <Card className="od-card mb-4">
@@ -352,7 +349,6 @@ export default function OrderDetails() {
                     <span>₹{totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
-
                 {order.PaymentMode && (
                   <div className="od-payment-mode">
                     <span className="od-payment-label">Payment</span>
@@ -396,7 +392,6 @@ export default function OrderDetails() {
               </Card>
             )}
 
-            {/* Delivery instructions */}
             {order.DeliveryInstructions && (
               <Card className="od-card mb-4">
                 <Card.Body>
@@ -408,7 +403,6 @@ export default function OrderDetails() {
               </Card>
             )}
 
-            {/* Remarks */}
             {order.Remarks && (
               <Card className="od-card">
                 <Card.Body>

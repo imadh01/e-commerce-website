@@ -10,6 +10,7 @@ export default function OfferProductsTrack({
   onAddToCart,
   onSetQuantity,
   onAddToCartUnauth,
+  onQuickView,
 }) {
   const trackRef = useRef(null);
 
@@ -21,8 +22,7 @@ export default function OfferProductsTrack({
   };
 
   return (
-    <section className="offer-products-section">
-      <Container fluid className="px-4">
+    <section className="offer-products-section container-fluid">
         <h2 className="op-heading">Offer Products</h2>
 
         <div className="op-track-wrap">
@@ -43,7 +43,11 @@ export default function OfferProductsTrack({
 
               return (
                 <div className="op-card" key={product.id}>
-                  <div className="op-img-wrap">
+                  <div
+                    className="op-img-wrap"
+                    onClick={() => onQuickView(product)}
+                    style={{ cursor: "pointer" }}
+                  >
                     {discountNum && (
                       <span className="product-discount-badge">
                         {discountNum}% OFF
@@ -141,7 +145,6 @@ export default function OfferProductsTrack({
             &#8250;
           </button>
         </div>
-      </Container>
     </section>
   );
 }

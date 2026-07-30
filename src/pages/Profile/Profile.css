@@ -46,7 +46,7 @@
 
 /* ===== CONTENT ===== */
 .profile-content {
-  margin-top: -20px;
+  margin-top: 20px;
   position: relative;
   z-index: 1;
 }

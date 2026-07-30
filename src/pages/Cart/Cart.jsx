@@ -245,7 +245,7 @@ export default function Cart() {
             <h5 className="cart-summary-title">Order Summary</h5>
 
             <div className="cart-summary-row">
-              <span>Items ({totals.itemCount})</span>
+              <span>MRP Total </span>
               <span>₹{totals.mrpTotal.toFixed(2)}</span>
             </div>
 

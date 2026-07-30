@@ -5,7 +5,7 @@
 }
 
 .promo-inner {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -150,10 +150,18 @@
     transform 0.2s ease;
 }
 
+.social-icon svg {
+	margin: 9px;
+}
+
 .social-icon:hover {
   background: var(--brand-orange);
   color: var(--white);
   transform: translateY(-2px);
+}
+
+.social-icon:hover svg {
+	color: var(--white);
 }
 
 /* ===== NAV COLUMNS ===== */

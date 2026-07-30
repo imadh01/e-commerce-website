@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./About.css";
 import { usePageTitle } from "../../hooks/usePageTitle";
 
@@ -67,7 +68,7 @@ export default function About() {
       <section className="about-hero">
         <img
           className="reveal-img"
-          src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1800&q=80"
+          src="/BannerNew.png"
           alt="Shoppers browsing fresh produce inside a modern grocery store"
         />
       </section>
@@ -112,14 +113,14 @@ export default function About() {
           <div className="row-image">
             <img
               className="reveal-img"
-              src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80"
+              src="store.jpg"
               alt="Grocer carrying a crate of fresh fruit in a produce aisle"
             />
           </div>
           <div className="row-image">
             <img
               className="reveal-img"
-              src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80"
+              src="/delivery.jpeg"
               alt="Shop owner standing confidently in front of stocked shelves"
             />
           </div>
@@ -146,8 +147,8 @@ export default function About() {
           request by email or telephone, please do not respond/divulge any
           sensitive data or information and forward the information relating to
           the same to{" "}
-          <a href="mailto:info@synergein.com" className="inline-link">
-            info@synergein.com
+          <a href="mailto:mamluk@mamluk.in" className="inline-link">
+            mamluk@mamluk.in
           </a>{" "}
           for necessary action.
         </p>
@@ -156,21 +157,21 @@ export default function About() {
           <div className="row-image">
             <img
               className="reveal-img"
-              src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80"
+              src="lady.jpg"
               alt="Woman preparing a fresh meal with vegetables in her kitchen"
             />
           </div>
           <div className="row-image">
             <img
               className="reveal-img"
-              src="https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=600&q=80"
+              src="grocery.jpg"
               alt="Family shopping together at a grocery store"
             />
           </div>
           <div className="row-image">
             <img
               className="reveal-img"
-              src="https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=600&q=80"
+              src="https://spoonrecipes.com/wp-content/uploads/2025/08/low-fodmap-pantry-staples-ingredients.webp"
               alt="Woman unpacking fresh groceries at home"
             />
           </div>
@@ -202,7 +203,7 @@ export default function About() {
           <div className="row-image">
             <img
               className="reveal-img"
-              src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80"
+              src="/AboutUsBanner.png"
               alt="Diverse group of people standing together"
             />
           </div>
@@ -211,7 +212,7 @@ export default function About() {
         <h2 className="reveal-el">Be safe, be secure!!</h2>
 
         <p className="reveal-el">
-          Synergein is leading the charge in transforming the grocery landscape
+          Mamluk is leading the charge in transforming the grocery landscape
           through cutting-edge technology and innovation. We believe everyone
           deserves the opportunity to continually improve their life — a process
           that often begins at home. As part of our mission of helping consumers
@@ -229,9 +230,9 @@ export default function About() {
         </p>
         <p className="reveal-el">
           For all other inquiries, visit our{" "}
-          <a href="/contact" className="inline-link">
+          <Link to="/contact" className="inline-link">
             Contact Us
-          </a>{" "}
+          </Link>{" "}
           page.
         </p>
       </section>

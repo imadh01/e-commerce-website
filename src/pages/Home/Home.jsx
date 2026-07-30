@@ -15,7 +15,7 @@ import HeroBanner from "./HeroBanner";
 import SundayOffersBanners from "./SundayOffersBanners";
 import FeaturesBar from "./FeaturesBar";
 import OfferProductsTrack from "./OfferProductsTrack";
-import CategorySidebar from "./CategorySidebar";
+import CategorySidebar from "./CategorySideBar";
 import ProductGrid from "./ProductGrid";
 import OfferDetailsModal from "./OfferDetailsModal";
 
@@ -169,9 +169,10 @@ export default function Home() {
 
   function changePage(page) {
     setCurrentPage(page);
-    document
-      .querySelector(".shop-main")
-      ?.scrollIntoView({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: (document.querySelector(".shop-layout")?.offsetTop || 0) - 80,
+      behavior: "smooth",
+    });
   }
 
   // ===== PAGINATION ITEMS =====
@@ -248,7 +249,6 @@ export default function Home() {
   // ===== RENDER =====
   return (
     <div className="home-page">
-      (
       <HeroBanner
         searchTerm={searchTerm}
         onSearchChange={(val) => {
@@ -256,16 +256,25 @@ export default function Home() {
           setCurrentPage(1);
         }}
       />
-      )
-      {!searchTerm && showOffersSection && hasOfferBanners && (
-        <SundayOffersBanners
-          banners={sundayOffers.weekend_offers}
-          offerLabel={offerLabel}
-          hasConfigs={offerConfigsLocal.length > 0}
-          onBannerClick={handleBannerClick}
-        />
+      {!searchTerm && (
+        <Container fluid className="offers-features px-4 py-3">
+          <Row className="g-4">
+            <Col xs={12} lg={8}>
+              {showOffersSection && hasOfferBanners && (
+                <SundayOffersBanners
+                  banners={sundayOffers.weekend_offers}
+                  offerLabel={offerLabel}
+                  hasConfigs={offerConfigsLocal.length > 0}
+                  onBannerClick={handleBannerClick}
+                />
+              )}
+            </Col>
+            <Col xs={12} lg={4}>
+              <FeaturesBar />
+            </Col>
+          </Row>
+        </Container>
       )}
-      {!searchTerm && <FeaturesBar />}
       {!searchTerm && showOffersSection && hasOfferProducts && (
         <OfferProductsTrack
           products={sundayOffers.offer_products}
@@ -274,9 +283,10 @@ export default function Home() {
           onAddToCart={addToCart}
           onSetQuantity={setQuantity}
           onAddToCartUnauth={handleCardAddToCart}
+          onQuickView={setQuickViewProduct}
         />
       )}
-      <Container fluid className="shop-layout px-4">
+      <Container fluid className="shop-layout">
         <Row className="g-4">
           <Col xs={12} md={3}>
             <CategorySidebar

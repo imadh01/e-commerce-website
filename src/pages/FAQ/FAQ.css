@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  background-image: url("https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&w=1600&q=80");
+  background-image: url("/BannerNew.png");
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -21,8 +21,8 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(255, 255, 255, 0.75) 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 100%
   );
 }
 
@@ -73,9 +73,9 @@
 
 /* ===== FAQ ACCORDION ===== */
 .faq-section {
-  max-width: 860px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 56px 24px;
+  padding: 56px 0px 24px;
 }
 
 .faq-list {

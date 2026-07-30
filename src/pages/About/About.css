@@ -5,21 +5,21 @@
 /* ===== HERO BANNER ===== */
 .about-hero {
   width: 100%;
-  max-height: 480px;
+  max-height: 340px;
   overflow: hidden;
 }
 
 .about-hero img {
   width: 100%;
-  height: 480px;
+  height: 360px;
   object-fit: cover;
 }
 
 /* ===== ABOUT CONTENT ===== */
 .about-content {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 24px 20px;
+  padding: 60px 0px 20px;
 }
 
 .about-content h1 {

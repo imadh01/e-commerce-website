@@ -125,7 +125,9 @@ export default function Header() {
                       {(user.CustomerName || "U").charAt(0).toUpperCase()}
                     </div>
                     <span className="profile-dropdown-name">
-                      {user.CustomerName?.split(" ")[0] || "Profile"}
+                      {[user.CustomerName, user.FamilyName]
+                        .filter(Boolean)
+                        .join(" ") || "Profile"}
                     </span>
                   </Dropdown.Toggle>
 

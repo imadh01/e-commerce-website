@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Footer.css";
+import api from "../../api/axiosClient";
 
 export default function Footer() {
-  // Controlled input: React state is the single source of truth for
-  // what's typed, instead of reading el.value from the DOM directly.
   const [email, setEmail] = useState("");
   const [subscribeMessage, setSubscribeMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubscribe(e) {
+  async function handleSubscribe(e) {
     e.preventDefault();
 
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-
     if (!isValid) {
       setSubscribeMessage({
         text: "Please enter a valid email address.",
@@ -21,14 +20,30 @@ export default function Footer() {
       return;
     }
 
-    setSubscribeMessage({
-      text: "Thanks for subscribing! Check your inbox soon.",
-      isError: false,
-    });
-    setEmail("");
-
-    // Auto-clear the message after 5 seconds, same as the old vanilla-JS version.
-    setTimeout(() => setSubscribeMessage(null), 5000);
+    setIsSubmitting(true);
+    try {
+      const response = await api.post("/subscribe", { email: email.trim() });
+      if (response.data.status) {
+        setSubscribeMessage({
+          text: "Thanks for subscribing! Check your inbox soon.",
+          isError: false,
+        });
+        setEmail("");
+      } else {
+        setSubscribeMessage({
+          text: response.data.message || "Already subscribed.",
+          isError: true,
+        });
+      }
+    } catch (err) {
+      setSubscribeMessage({
+        text: "Something went wrong. Please try again.",
+        isError: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setSubscribeMessage(null), 5000);
+    }
   }
 
   const year = new Date().getFullYear();
@@ -41,9 +56,8 @@ export default function Footer() {
           <div className="promo-text">
             <h2>Make your online shop easier with our mobile app</h2>
             <p>
-              Synergein makes online grocery shopping fast and easy. Get
-              groceries delivered and order the best of seasonal farm fresh
-              food.
+              Mamluk makes online grocery shopping fast and easy. Get groceries
+              delivered and order the best of seasonal farm fresh food.
             </p>
             <div className="store-badges">
               <a
@@ -100,7 +114,7 @@ export default function Footer() {
           </div>
           <div className="promo-image">
             <img
-              src="https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=900&q=80"
+              src="/Home_Footer_Banner.png"
               alt="Delivery person holding a bag of fresh groceries"
               loading="lazy"
             />
@@ -182,16 +196,16 @@ export default function Footer() {
 
             <div className="footer-col">
               <h4>About Us</h4>
-              <Link to="/about">About us</Link>
-              <Link to="/contact">Contact us</Link>
-              <a href="#">About team</a>
+              <Link to="/about">About Us</Link>
+              <Link to="/contact">Contact Us</Link>
+              <a href="#">About Team</a>
               <a href="#">Customer Support</a>
             </div>
 
             <div className="footer-col">
               <h4>Our Information</h4>
-              <Link to="/privacy">Privacy policy update</Link>
-              <Link to="/terms">Terms &amp; conditions</Link>
+              <Link to="/privacy">Privacy Policy Update</Link>
+              <Link to="/terms">Terms &amp; Conditions</Link>
               <a href="#">Return Policy</a>
               <a href="#">Site Map</a>
             </div>
@@ -199,9 +213,9 @@ export default function Footer() {
             <div className="footer-col">
               <h4>Community</h4>
               <a href="#">Announcements</a>
-              <Link to="/faq">Answer center</Link>
-              <a href="#">Discussion boards</a>
-              <a href="#">Giving works</a>
+              <Link to="/faq">Answer Center</Link>
+              <a href="#">Discussion Boards</a>
+              <a href="#">Giving Works</a>
             </div>
 
             <div className="footer-col subscribe-col">
@@ -235,22 +249,37 @@ export default function Footer() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                  <button type="submit" aria-label="Subscribe">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M4 12H20"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M14 6L20 12L14 18"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                  <button
+                    type="submit"
+                    aria-label="Subscribe"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <span style={{ fontSize: "0.7rem", fontWeight: 700 }}>
+                        ...
+                      </span>
+                    ) : (
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M4 12H20"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d="M14 6L20 12L14 18"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
                   </button>
                 </div>
                 {subscribeMessage && (

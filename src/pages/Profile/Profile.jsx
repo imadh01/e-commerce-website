@@ -320,7 +320,9 @@ export default function Profile() {
             </div>
             <div>
               <h1 className="profile-hero-title">
-                {user.CustomerName || "Welcome"}
+                {[user.CustomerName, user.FamilyName]
+                  .filter(Boolean)
+                  .join(" ") || "Welcome"}
               </h1>
               <p className="profile-hero-sub">+91 {user.PrimaryMobile}</p>
             </div>
