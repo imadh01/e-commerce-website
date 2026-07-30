@@ -16,10 +16,25 @@
   margin: 0 0 8px;
 }
 
+/* ===== HERO ===== */
+.privacy-hero {
+  background: linear-gradient(135deg, var(--brand-blue) 0%, #0a3d6b 100%);
+  padding: 48px 24px 32px;
+  text-align: center;
+}
+
+.privacy-hero h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--brand-blue);
+  margin: 0 0 8px;
+}
+
 .privacy-hero {
   position: relative;
   min-height: 340px;
   display: flex;
+  flex-direction: column;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -29,6 +44,7 @@
   background-position: center;
   padding: 48px 24px 32px;
 }
+
 .privacy-hero::before {
   content: "";
   position: absolute;
@@ -54,7 +70,9 @@
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 40px;
+  gap: 40px;
   align-items: start;
+  min-width: 0;
   min-width: 0;
 }
 

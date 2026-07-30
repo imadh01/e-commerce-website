@@ -49,6 +49,7 @@
   margin-top: 20px;
   position: relative;
   z-index: 1;
+  max-width: 1200px;
 }
 
 /* ===== CARDS ===== */

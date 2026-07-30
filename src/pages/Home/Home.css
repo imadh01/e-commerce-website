@@ -107,6 +107,7 @@
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(4, 41, 84, 0.08);
+  box-shadow: 0 2px 12px rgba(4, 41, 84, 0.08);
 }
 
 .so-carousel-img {
@@ -236,19 +237,6 @@
   padding: 24px 0;
   background: var(--white);
   border-bottom: 1px solid var(--border-soft);
-} */
-
-.features-bar {
-  padding: 0;
-  background: transparent;
-  border-bottom: none;
-  height: 100%;
-  display: flex;
-  align-items: center; /* centers the cards vertically against the carousel */
-}
-
-.features-bar .row {
-  /*width: 100%;*/
 }
 
 .feature-card {
